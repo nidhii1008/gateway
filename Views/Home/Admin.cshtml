@@ -1,0 +1,18 @@
+@using IT_Gateway.Models;
+
+@model List<DevicesModel>;
+
+@{
+    ViewData["Title"] = "Admin Page";
+}
+
+@{
+    Layout = null;
+}
+
+<!-- Your provided HTML content here -->
+
+
+    
+    @Html.Partial("_Admin",@Model);
+

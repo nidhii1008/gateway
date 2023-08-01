@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ITGateway</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ITGateway.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
+    <link rel="stylesheet" href="~/lib/css/Admin.css">
+</head>
+<body>
+   
+    <header>
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark"
+    style="min-height: 10vh; box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5)">
+    <a class="navbar-brand" href="#"><img src="https://cginfinity.com/wp-content/uploads/2022/04/cgi-logo.svg"
+        alt="" /></a>
+    <ul class="navbar-nav ml-auto mr-0 mt-2 mt-lg-0">
+      <li class="nav-item d-flex flex-row-reverse dropdown">
+        <a class="btn" style="color: white" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <i class="fa-solid fa-user fa-xl"></i>
+        </a>
+        <div class="dropdown-menu" style="
+              box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5);
+              left: auto;
+              position: absolute;
+            " aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">User Name</a>
+          <a class="dropdown-item" href="#">User Id</a>
+          <hr />
+          <a class="dropdown-item" href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer>
+    <p>© 2023 CG Infinity. All rights reserved</p>
+  </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~lib/js/Admin.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

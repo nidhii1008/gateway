@@ -1,0 +1,185 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+:root{
+    --rightwidth:350px;
+    --fullpagew:95vw;
+}
+body{
+    min-height: 100vh;
+    font-family: "Open Sans", sans-serif;
+    margin: 0;
+}
+
+nav{
+    position:static;
+    top: 0;
+}
+  .assign-content {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 5.5%;
+      /* margin-top: 18px; */
+       /* Add some padding to create space between border and content */
+    }
+
+.main-content {
+    padding: 1rem;
+}
+.left{
+    width: calc(var(--fullpagew) - var(--rightwidth));
+    display: inline-block;
+    padding: 3%;
+}
+.right{
+    display: inline-block;
+    position: absolute;
+    width: var(--rightwidth);
+ 
+    
+    /* box-shadow: 0px -1px 13px 4px rgba(157,157,157,0.4);
+-webkit-box-shadow: 0px -1px 13px 4px rgba(157,157,157,0.4);
+-moz-box-shadow: 0px -1px 13px 4px rgba(157,157,157,0.4); */
+}
+.right-text{
+    padding: 3%;
+}
+.assign-btn{
+    margin-top: 7.8%;
+}
+#chart-container {
+    width: 300px;
+    height: 300px;
+    transition: .4s ease;
+    opacity: 0; /* Initially hidden */
+    margin: 20px;
+  }
+  /* #color-dropdown {
+   
+  } */
+  /* Custom CSS for the color-dropdown */
+#color-dropdown {
+  font-family: "Open Sans", sans-serif; /* Customize font family */
+  font-size: 16px; /* Customize font size */
+
+   padding-left: 10%;
+    margin: 18px;
+}
+
+/* Customize the appearance of the dropdown box */
+#color-dropdown select {
+  width: 100px; /* Customize the width of the dropdown box */
+  padding: 7px; /* Add some padding to make it visually pleasing */
+  border: 2px solid #ccc; /* Add a border */
+  border-radius: 5px; /* Add rounded corners */
+  background-color: #fff; /* Background color */
+  color: #333; /* Text color */
+  appearance: none; /* Remove default styles for certain browsers */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  white-space: nowrap; /* Prevent the text from wrapping to the next line */
+  overflow: hidden; /* Hide any overflowed text */
+  text-overflow: ellipsis; /* Add ellipsis (...) for text overflow */
+}
+
+
+/* Style the arrow icon in the dropdown box (if supported) */
+#color-dropdown select::after {
+  content: "\f078"; /* Unicode for the arrow-down icon (font-awesome) */
+  font-family: "Font Awesome 5 Free"; /* Use Font Awesome */
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #555; /* Arrow color */
+}
+
+/* Style the dropdown options */
+#color-dropdown select option {
+  font-family: "Open Sans", sans-serif; /* Customize font family */
+  font-size: 16px; /* Customize font size */
+  color: #333; /* Text color */
+}
+
+/* Hover and Focus styles for the dropdown */
+#color-dropdown select:hover,
+#color-dropdown select:focus {
+  border-color: #66afe9; /* Border color on hover/focus */
+  outline: none; /* Remove the default focus outline */
+}
+
+  #loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    /* height: 100%; */
+    opacity: 1; /* Initially visible */
+    transition: opacity 0.5s ease-in-out; /* Add fade-out transition */
+  }
+  
+footer{
+    position:relative;
+    bottom: 0;
+    width: 100%;
+    height:10vh;
+    border-top: 1px solid rgb(193, 193, 193);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+/* .dropdown{
+    position: relative;
+} */
+/* @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap'); */
+
+.fn-1{
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.75em;
+  /* position: absolute;
+  top: 50%;
+  left: 50%; */
+  /* transform: translate(-50%,-50%); */
+  background-image: linear-gradient(rgb(255, 183, 0), gold);
+  text-align: center;
+  background-repeat: no-repeat;
+
+   
+}
+.btn-cus{
+    background-color: #a8adb3!important;
+}
+.btn > i{
+    color: rgb(255, 183, 0) !important;
+}
+
+.btn:hover > i,.btn:focus>i{
+    transition:.2s ease-in-out;
+    cursor: pointer;
+    color: #ffea00 !important;
+}
+.btn:active>i{
+    color: #ff7301 !important;
+
+}
+.card {
+    
+  border: 1px solid #ccc;
+  border-radius: 8%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 20px;
+}
+.add-devtype-btn{
+    margin-top:28%;
+}
+.last-row{
+    margin-top: 3%;
+    margin-bottom: 3%;
+}
