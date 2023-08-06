@@ -1,9 +1,7 @@
 @using IT_Gateway.Models;
 @model List<DevicesModel>;
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <title>Title</title>
   <!-- Required meta tags -->
@@ -23,23 +21,19 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     :root {
       --rightwidth: 350px;
       --fullpagew: 95vw;
     }
-
     body {
       min-height: 100vh;
       font-family: "Open Sans", sans-serif;
       margin: 0;
     }
-
     nav {
       position: static;
       top: 0;
     }
-
     .assign-content {
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -48,36 +42,28 @@
       /* margin-top: 18px; */
       /* Add some padding to create space between border and content */
     }
-
     .main-content {
       padding: 1rem;
     }
-
     .left {
       width: calc(var(--fullpagew) - var(--rightwidth));
       display: inline-block;
       padding: 3%;
     }
-
     .right {
       display: inline-block;
       position: absolute;
       width: var(--rightwidth);
-
-
       /* box-shadow: 0px -1px 13px 4px rgba(157,157,157,0.4);
 -webkit-box-shadow: 0px -1px 13px 4px rgba(157,157,157,0.4);
 -moz-box-shadow: 0px -1px 13px 4px rgba(157,157,157,0.4); */
     }
-
     .right-text {
       padding: 3%;
     }
-
     .assign-btn {
       margin-top: 7.8%;
     }
-
     #chart-container {
       width: 300px;
       height: 300px;
@@ -86,9 +72,7 @@
       /* Initially hidden */
       margin: 20px;
     }
-
     /* #color-dropdown {
-
   } */
     /* Custom CSS for the color-dropdown */
     #color-dropdown {
@@ -96,11 +80,9 @@
       /* Customize font family */
       font-size: 16px;
       /* Customize font size */
-
       padding-left: 10%;
       margin: 18px;
     }
-
     /* Customize the appearance of the dropdown box */
     #color-dropdown select {
       width: 100px;
@@ -126,8 +108,6 @@
       text-overflow: ellipsis;
       /* Add ellipsis (...) for text overflow */
     }
-
-
     /* Style the arrow icon in the dropdown box (if supported) */
     #color-dropdown select::after {
       content: "\f078";
@@ -143,7 +123,6 @@
       color: #555;
       /* Arrow color */
     }
-
     /* Style the dropdown options */
     #color-dropdown select option {
       font-family: "Open Sans", sans-serif;
@@ -153,7 +132,6 @@
       color: #333;
       /* Text color */
     }
-
     /* Hover and Focus styles for the dropdown */
     #color-dropdown select:hover,
     #color-dropdown select:focus {
@@ -162,7 +140,6 @@
       outline: none;
       /* Remove the default focus outline */
     }
-
     #loading {
       display: flex;
       align-items: center;
@@ -174,7 +151,6 @@
       transition: opacity 0.5s ease-in-out;
       /* Add fade-out transition */
     }
-
     footer {
       position: relative;
       bottom: 0;
@@ -186,7 +162,6 @@
       align-items: center;
       text-align: center;
     }
-
     /* .dropdown{
     position: relative;
 } */
@@ -200,50 +175,38 @@
       background-image: linear-gradient(rgb(255, 183, 0), gold);
       text-align: center;
       background-repeat: no-repeat;
-
-
     }
-
     .btn-cus {
       background-color: #a8adb3 !important;
     }
-
     .btn>i {
       color: rgb(255, 183, 0) !important;
     }
-
     .btn:hover>i,
     .btn:focus>i {
       transition: .2s ease-in-out;
       cursor: pointer;
       color: #ffea00 !important;
     }
-
     .btn:active>i {
       color: #ff7301 !important;
-
     }
-
     .card {
-
       border: 1px solid #ccc;
       border-radius: 4%;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       padding: 25px;
       margin-bottom: 20px;
     }
-
     .add-devtype-btn {
       margin-top: 28%;
     }
-
     .last-row {
       margin-top: 3%;
       margin-bottom: 3%;
     }
   </style>
 </head>
-
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark"
     style="min-height: 10vh; box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5)">
@@ -260,8 +223,8 @@
               left: auto;
               position: absolute;
             " aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">User Name</a>
-          <a class="dropdown-item" href="#">User Id</a>
+          <a class="dropdown-item" id="usernameDropdown" href="#">User Name</a>
+          <a class="dropdown-item" id="userIdDropdown" href="#">User Id</a>
           <hr />
           <a class="dropdown-item" href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
         </div>
@@ -272,7 +235,7 @@
     <div class="left">
       <p class="fn-1">Assign a device</p>
       <div class="container">
-        <form>
+        <form id="assignDeviceForm">
           <div class="row assign-content">
             <div class="col-6">
               <div class="form-group">
@@ -280,46 +243,41 @@
                 <input type="text" class="form-control" id="employeeID" name="employee_id"
                   placeholder="Enter Employee ID">
               </div>
-
               <!-- Device Type Dropdown -->
               <div class="form-group">
-                <label for="deviceType">Device Type:</label>
-                 <select class="form-control" id="deviceType" name="device_id">
-                  @if (Model != null){
-    @foreach (var device in Model)
-    {
-        <option value="@device.device_id">@device.device_name</option>
-    }
+                <label for="deviceTypeS">Device Type:</label>
+                <select class="form-control" id="deviceTypeS" name="device_id">
+                  @if (Model != null)
+                  {
+                    @foreach (var device in Model)
+                    {
+                      <option value="@device.device_id">@device.device_name</option>
+                    }
                   }
-</select>
+                </select>
                 @* <select class="form-control" id="deviceType" name="device_type">
-                  <option value="1">Laptop</option>
-                  <option value="2">Mouse</option>
-                  <option value="3">Charger</option>
-                  <option value="4">Keyboard</option>
-                  <option value="5">Other</option>
-
-                 
+                <option value="1">Laptop</option>
+                <option value="2">Mouse</option>
+                <option value="3">Charger</option>
+                <option value="4">Keyboard</option>
+                <option value="5">Other</option>
                 </select> *@
               </div>
             </div>
             <div class="col-6 right-content">
               <div class="form-group">
-                <label for="deviceType">Specifications:</label>
-                <select class="form-control" id="deviceType">
-                  <option value="laptop">Laptop</option>
+                <label for="specificationsS">Specifications:</label>
+                <select class="form-control" id="specificationsS" name="Specifications">
+                  @* <option value="laptop">Laptop</option>
                   <option value="desktop">Desktop</option>
                   <option value="tablet">Tablet</option>
                   <option value="smartphone">Smartphone</option>
-                  <option value="other">Other</option>
+                  <option value="other">Other</option> *@
                 </select>
               </div>
-
               <button type="submit" class="btn btn-dark assign-btn">Assign a Device</button>
             </div>
-
           </div>
-
         </form>
         <!-- <h6 class="right-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero laudantium corrupti illo ab rem ullam.</h4> -->
       </div>
@@ -339,65 +297,51 @@
       </div>
     </div>
   </div>
-
   <div class="container">
     <div class="row">
       <div class="col-4">
         <p class="fn-1">Add new Device-Type</p>
         <div class="card">
           <!-- Content for the first card -->
-          <form>
+          <form id="addDeviceForm" method="post">
             <!-- Input Field -->
-            <div class="form-group">
-              <label for="inputField">Device type:</label>
-              <input type="text" class="form-control" id="inputField" placeholder="Enter something">
+             <div class="form-group">
+              <label for="deviceType">Device Type:</label>
+             <input type="text" class="form-control" id="deviceName" name="deviceName" required>
             </div>
-
-            <!-- Dropdown with Options -->
-            <!-- <div class="form-group">
-              <label for="dropdownOptions">Select an option:</label>
-              <select class="form-control" id="dropdownOptions">
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
-                <option value="option4">Option 4</option>
-              </select>
-            </div> -->
-
             <!-- Button -->
-            <button type="button" class="btn btn-dark add-devtype-btn">Submit</button>
+            <button type="submit" class="btn btn-dark add-devtype-btn" onclick="addDevice()">Submit</button>
           </form>
+ 
+ 
+
+
         </div>
       </div>
       <div class="col-4">
         <p class="fn-1">Add to inventory</p>
         <div class="card">
           <!-- Content for the second card -->
-          <form>
+          <form id="addToInventoryForm">
             <!-- Device Type Dropdown -->
             <div class="form-group">
-              <label for="deviceType">Device Type:</label>
-              <select class="form-control" id="deviceType">
-                <option value="laptop">Laptop</option>
-                <option value="desktop">Desktop</option>
-                <option value="tablet">Tablet</option>
-                <option value="smartphone">Smartphone</option>
-                <option value="other">Other</option>
+              <label for="deviceTypeA">Device Type:</label>
+              <select class="form-control" id="deviceTypeA" name="device_type">
+                @if (Model != null)
+                {
+                  @foreach (var device in Model)
+                  {
+                    <option value="@device.device_id">@device.device_name</option>
+                  }
+                }
               </select>
             </div>
-
             <!-- Specifications Dropdown -->
             <div class="form-group">
-              <label for="specifications">Specifications:</label>
-              <select class="form-control" id="specifications">
-                <option value="spec1">Specification 1</option>
-                <option value="spec2">Specification 2</option>
-                <option value="spec3">Specification 3</option>
-                <option value="spec4">Specification 4</option>
-                <option value="spec5">Specification 5</option>
+              <label for="specificationsA">Specifications:</label>
+              <select class="form-control" id="specificationsA" name="Specifications">
               </select>
             </div>
-
             <!-- Button -->
             <button type="submit" class="btn btn-dark">Submit</button>
           </form>
@@ -406,26 +350,25 @@
       <div class="col-4">
         <p class="fn-1">Deallocating device</p>
         <div class="card">
-
           <form>
             <!-- Employee ID Input Field -->
             <div class="form-group">
               <label for="employeeID">Employee ID:</label>
               <input type="text" class="form-control" id="employeeID" placeholder="Enter Employee ID">
             </div>
-
             <!-- Device Type Dropdown -->
             <div class="form-group">
               <label for="deviceType">Device Type:</label>
-              <select class="form-control" id="deviceType">
-                <option value="laptop">Laptop</option>
-                <option value="desktop">Desktop</option>
-                <option value="tablet">Tablet</option>
-                <option value="smartphone">Smartphone</option>
-                <option value="other">Other</option>
+              <select class="form-control" id="deviceType" name="device_">
+                @if (Model != null)
+                {
+                  @foreach (var device in Model)
+                  {
+                    <option value="@device.device_id">@device.device_name</option>
+                  }
+                }
               </select>
             </div>
-
             <!-- Button -->
             <button type="submit" class="btn btn-dark">Submit</button>
           </form>
@@ -437,25 +380,22 @@
         <p class="fn-1">Add User</p>
         <div class="card">
           <!-- Content for the fourth card -->
-          <form>
+          <form id="addUserForm"> 
             <!-- Employee ID Input Field -->
             <div class="form-group">
               <label for="employeeID">Employee ID:</label>
-              <input type="text" class="form-control" id="employeeID" placeholder="Enter Employee ID">
+              <input type="text" class="form-control" id="employeeID" name="employee_id" placeholder="Enter Employee ID">
             </div>
-
             <!-- Username Input Field -->
             <div class="form-group">
               <label for="username">Username:</label>
-              <input type="text" class="form-control" id="username" placeholder="Set Username">
+              <input type="text" class="form-control" id="username" name="username" placeholder="Set Username">
             </div>
-
             <!-- Password Input Field -->
             <div class="form-group">
               <label for="password">Password:</label>
-              <input type="password" class="form-control" id="password" placeholder="Set Password">
+              <input type="password" class="form-control" id="password" name="password" placeholder="Set Password">
             </div>
-
             <!-- Button -->
             <button type="submit" class="btn btn-dark">Submit</button>
           </form>
@@ -471,14 +411,12 @@
               <label for="employeeID">Employee ID:</label>
               <input type="text" class="form-control" id="employeeID" placeholder="Enter Employee ID">
             </div>
-
             <!-- Readonly Text Area -->
             <div class="form-group">
-              <label for="devicesToDeallocate">Devices to be deallocated:</label>
+              <label for="devicesToDeallocate">Allocated Devices:</label>
               <textarea class="form-control" id="devicesToDeallocate" rows="4"
-                readonly>Devices to be deallocated</textarea>
+                readonly>Devices that are allocated</textarea>
             </div>
-
             <!-- Button -->
             <button type="submit" class="btn btn-dark mt-3">Deallocate Devices</button>
           </form>
@@ -486,28 +424,22 @@
       </div>
     </div>
   </div>
-
   <script>
     const ctx = document.getElementById('myPieChart').getContext('2d');
     let myPieChart;
-
     const dataMap = {
       option1: [40, 30, 30],
       option2: [10, 50, 40],
       option3: [20, 20, 60],
       option4: [25, 35, 40],
     };
-
     function updateChart() {
       const selectedOption = document.getElementById('colors').value;
       const data = dataMap[selectedOption];
-
       if (myPieChart) {
         myPieChart.destroy();
       }
-
       // Show the loading message
-
       setTimeout(() => {
         myPieChart = new Chart(ctx, {
           type: 'pie',
@@ -531,18 +463,242 @@
                 }
               }
             }
-
           }
         });
-
         // Hide the loading message and show the chart
         document.getElementById('chart-container').style.opacity = 1;
       }); // Simulating a 2-second delay for the loading effect (you can adjust the delay as needed)
     }
-
     // Initial chart update on page load
     window.addEventListener('load', updateChart);
   </script>
+  @* for assign a device dropdown *@
+  <script>
+    // Function to make an XHR request when the device type is selected
+    document.getElementById("deviceTypeS").addEventListener("change", function() {
+        var selectedDeviceId = this.value;
+        // Send the XHR request to the server endpoint
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                // Parse the JSON response
+                var specifications = JSON.parse(xhr.responseText);
+  console.log(specifications);
+                // Populate the Specifications dropdown dynamically
+                var specificationsDropdown = document.getElementById("specificationsS");
+                specificationsDropdown.innerHTML = ""; // Clear existing options
+                // Add the new options based on the fetched specifications
+                if (specifications.length===0){
+                  var option = document.createElement("option");
+                  option.value="NA";
+                  option.textContent="NA";
+                  specificationsDropdown.appendChild(option);
+                }
+                else{
+                for (var i = 0; i < specifications.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = specifications[i].value;
+                    option.textContent = specifications[i].text;
+                    specificationsDropdown.appendChild(option);
+                }
+                }
+            }
+        };
+        xhr.send();
+    });
+</script>
+@* for add to inventory dropdown *@
+ <script>
+    // Function to make an XHR request when the device type is selected
+    document.getElementById("deviceTypeA").addEventListener("change", function() {
+        var selectedDeviceId = this.value;
+        // Send the XHR request to the server endpoint
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                // Parse the JSON response
+                var specifications = JSON.parse(xhr.responseText);
+  console.log(specifications);
+                // Populate the Specifications dropdown dynamically
+                var specificationsDropdown = document.getElementById("specificationsA");
+                specificationsDropdown.innerHTML = ""; // Clear existing options
+                // Add the new options based on the fetched specifications
+                if (specifications.length===0){
+                  var option = document.createElement("option");
+                  option.value="NA";
+                  option.textContent="NA";
+                  specificationsDropdown.appendChild(option);
+                }
+                else{
+                for (var i = 0; i < specifications.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = specifications[i].value;
+                    option.textContent = specifications[i].text;
+                    specificationsDropdown.appendChild(option);
+                }
+                }
+            }
+        };
+        xhr.send();
+    });
+</script>
+@* //add user *@
+<script>
+  document.getElementById('addUserForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/Home/Admin/AddUser');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          alert('User added successfully.');
+          // Handle success here
+        } else {
+          alert(`Error: ${xhr.responseText}`);
+          // Handle error here
+        }
+      }
+    };
+    xhr.send(formData); // Send the form data as is (application/x-www-form-urlencoded or multipart/form-data)
+  });
+</script>
+@* assign a device *@
+<script>
+    document.getElementById("assignDeviceForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const xhr = new XMLHttpRequest();
+        xhr.open("post", "/Home/Admin/AssignDevice", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        var jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        });
+        console.log(jsonData);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    const response = xhr.responseText;
+                    if (response === "assigned") {
+                        alert("Device successfully assigned!");
+                    } else {
+                        alert("All devices are already assigned.");
+                    }
+                } else {
+                    alert("An error occurred while processing your request.");
+                }
+            }
+        };
+        xhr.send(JSON.stringify(jsonData));
+    });
+</script>
+@* add device type *@
+<script>
+  // Fetch device types and populate the deviceTypeDropdown
+  fetch("/Home/Index/GetDeviceTypes")
+    .then(response => response.json())
+    .then(deviceTypes => {
+      const deviceTypeDropdown = document.getElementById("deviceType");
+      deviceTypes.forEach(deviceType => {
+        const option = document.createElement("option");
+        option.value = deviceType;
+        option.text = deviceType;
+        deviceTypeDropdown.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching device types:", error);
+    });
+  // Wait for the page to load
+  document.addEventListener("DOMContentLoaded", () => {
+    // Get the form element
+    const form = document.getElementById("addToInventoryForm");
+    // Add a submit event listener to the form
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      // Get the selected values for deviceType and specifications
+      const deviceType = document.getElementById("deviceType").value;
+      const specifications = document.getElementById("specifications").value;
+      // Create a new entry for the inventoryModel
+      const inventoryEntry = {
+        inventory_id: "", // The server will generate the inventory_id
+        device_id: 0, // We'll update this later based on the deviceType
+        created_at_utc: "",
+        updated_at_utc: "",
+        device_state: "", // Replace this with the desired default value
+        Specifications: specifications,
+      };
+      // Call the API to get the device_id and add the new inventory entry
+      try {
+        const deviceIdResponse = await fetch(`/Home/Admin/GetDeviceIdByType/${deviceType}`);
+        const deviceId = await deviceIdResponse.json();
+        inventoryEntry.device_id = deviceId;
+        const addToInventoryResponse = await fetch("/api/AddDeviceToInventory", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(inventoryEntry),
+        });
+        if (addToInventoryResponse.ok) {
+          // Handle success
+          alert("Device added to inventory successfully.");
+          form.reset(); // Clear the form inputs
+        } else {
+          // Handle failure
+          alert("Failed to add device to inventory.");
+        }
+      } catch (error) {
+        // Handle errors and show an error message
+        alert(error.message || "An error occurred.");
+      }
+    });
+  @* addtoinventory xhr *@
+<script>
+  // Wait for the page to load
+  document.addEventListener("DOMContentLoaded", () => {
+    // Get the form element
+    const form = document.getElementById("addToInventoryForm");
+    // Add a submit event listener to the form
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      // Get the selected values for device_id and specifications
+      const device_id = parseInt(document.getElementById("deviceTypeA").value); // Parse the device_id to an integer
+      const specifications = document.getElementById("specificationsA").value;
+      // Create an object with only the required parameters
+      const data = {
+        device_id: device_id,
+        Specifications: specifications,
+      };
+      // Create a new XMLHttpRequest object
+      const xhr = new XMLHttpRequest();
+      // Set up the request
+      xhr.open("POST", "/Home/Admin/AddToInventory", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      // Handle the response
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          // Handle success
+          alert("Device added to inventory successfully.");
+          form.reset(); // Clear the form inputs
+        } else {
+          // Handle failure
+          alert("Failed to add device to inventory.");
+        }
+      };
+      // Handle network errors
+      xhr.onerror = function () {
+        alert("An error occurred while making the request.");
+      };
+      // Send the request with the JSON payload
+      xhr.send(JSON.stringify(data));
+    });
+  });
+</script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
@@ -554,13 +710,7 @@
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
-
-
 <footer>
   <p>© 2023 CG Infinity. All rights reserved</p>
 </footer>
-
-
-
-
 </html>
