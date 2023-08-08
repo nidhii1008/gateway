@@ -312,10 +312,6 @@
             <!-- Button -->
             <button type="submit" class="btn btn-dark add-devtype-btn" onclick="addDevice()">Submit</button>
           </form>
- 
- 
-
-
         </div>
       </div>
       <div class="col-4">
@@ -405,20 +401,20 @@
         <p class="fn-1">Display devices</p>
         <div class="card">
           <!-- Content for the fifth card -->
-          <form>
+           <form id="employeeForm">
             <!-- Employee ID Input Field -->
             <div class="form-group">
-              <label for="employeeID">Employee ID:</label>
-              <input type="text" class="form-control" id="employeeID" placeholder="Enter Employee ID">
+              <label for="employeeIdInput">Employee ID:</label>
+              <input type="text" class="form-control" id="employeeIdInput" name="employee_id" placeholder="Enter Employee ID">
             </div>
             <!-- Readonly Text Area -->
             <div class="form-group">
-              <label for="devicesToDeallocate">Allocated Devices:</label>
-              <textarea class="form-control" id="devicesToDeallocate" rows="4"
-                readonly>Devices that are allocated</textarea>
+              <label for="display device">Display Devices:</label>
+              <textarea class="form-control" id="Display" rows="4"
+                readonly>Devices will display here</textarea>
             </div>
             <!-- Button -->
-            <button type="submit" class="btn btn-dark mt-3">Deallocate Devices</button>
+            <button class="btn btn-dark mt-3" type="button" id="displayButton">Display Device</button>
           </form>
         </div>
       </div>
@@ -473,40 +469,47 @@
     window.addEventListener('load', updateChart);
   </script>
   @* for assign a device dropdown *@
-  <script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
     // Function to make an XHR request when the device type is selected
-    document.getElementById("deviceTypeS").addEventListener("change", function() {
-        var selectedDeviceId = this.value;
-        // Send the XHR request to the server endpoint
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                // Parse the JSON response
-                var specifications = JSON.parse(xhr.responseText);
-  console.log(specifications);
-                // Populate the Specifications dropdown dynamically
-                var specificationsDropdown = document.getElementById("specificationsS");
-                specificationsDropdown.innerHTML = ""; // Clear existing options
-                // Add the new options based on the fetched specifications
-                if (specifications.length===0){
-                  var option = document.createElement("option");
-                  option.value="NA";
-                  option.textContent="NA";
-                  specificationsDropdown.appendChild(option);
-                }
-                else{
-                for (var i = 0; i < specifications.length; i++) {
-                    var option = document.createElement("option");
-                    option.value = specifications[i].value;
-                    option.textContent = specifications[i].text;
-                    specificationsDropdown.appendChild(option);
-                }
-                }
+    function updateSpecifications() {
+      var selectedDeviceId = document.getElementById("deviceTypeS").value;
+      // Send the XHR request to the server endpoint
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+          // Parse the JSON response
+          var specifications = JSON.parse(xhr.responseText);
+          console.log(specifications);
+          // Populate the Specifications dropdown dynamically
+          var specificationsDropdown = document.getElementById("specificationsS");
+          specificationsDropdown.innerHTML = ""; // Clear existing options
+          // Add the new options based on the fetched specifications
+          if (specifications.length === 0) {
+            var option = document.createElement("option");
+            option.value = "NA";
+            option.textContent = "NA";
+            specificationsDropdown.appendChild(option);
+          } else {
+            for (var i = 0; i < specifications.length; i++) {
+              var option = document.createElement("option");
+              option.value = specifications[i].value;
+              option.textContent = specifications[i].text;
+              specificationsDropdown.appendChild(option);
             }
-        };
-        xhr.send();
-    });
+          }
+        }
+      };
+      xhr.send();
+    }
+  
+      document.getElementById("deviceTypeS").addEventListener("change", updateSpecifications);
+      window.onload = function (){
+      updateSpecifications();
+}
+  
+  });
 </script>
 @* for add to inventory dropdown *@
  <script>
@@ -597,7 +600,7 @@
     });
 </script>
 @* add device type *@
-<script>
+@* <script>
   // Fetch device types and populate the deviceTypeDropdown
   fetch("/Home/Index/GetDeviceTypes")
     .then(response => response.json())
@@ -657,6 +660,7 @@
         alert(error.message || "An error occurred.");
       }
     });
+    </script> *@
   @* addtoinventory xhr *@
 <script>
   // Wait for the page to load
@@ -671,6 +675,7 @@
       const specifications = document.getElementById("specificationsA").value;
       // Create an object with only the required parameters
       const data = {
+        //device type
         device_id: device_id,
         Specifications: specifications,
       };
@@ -694,10 +699,79 @@
       xhr.onerror = function () {
         alert("An error occurred while making the request.");
       };
+      console.log(data);
       // Send the request with the JSON payload
       xhr.send(JSON.stringify(data));
     });
   });
+</script>
+@* display devices *@
+<script>
+    document.getElementById("displayButton").addEventListener("click", function() {
+      // Get the employee ID from the input field
+      var employeeIdInput = document.getElementById("employeeIdInput");
+      var employeeId = parseInt(employeeIdInput.value);
+      console.log(employeeId);
+      // Create an XHR object
+      const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+  if (xhr.readyState === XMLHttpRequest.DONE) {
+    if (xhr.status === 200) {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        // Assuming the response is an array (list) of objects
+        if (Array.isArray(data)) {
+          // Assuming there is a textarea element with the ID 'Display'
+          const displayElement = document.getElementById('Display');
+          // Clear previous content if needed
+          displayElement.value = '';
+          // Format each item with employeeId and inventoryId in bold and separate lines
+          data.forEach((item) => {
+            displayElement.value += `Employee Id: ${item.employeeId}\n`;
+            displayElement.value += `Serial No.: ${item.inventoryId}\n`;
+            displayElement.value += `Device: ${item.deviceName}\n\n`;
+          });
+        } else {
+          console.error('Received data is not an array:', data);
+        }
+      } catch (error) {
+        console.error('Error parsing JSON response:', error);
+      }
+    } else {
+      console.error('Error:', xhr.status, xhr.statusText);
+    }
+  }
+};
+    console.log(employeeId);
+    xhr.send();
+  });
+</script> 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Function to make the XHR request and populate data
+  function populateUserData() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/Home/Admin/GetUsername", true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          // Request successful, parse response and update dropdown items
+          var userData = JSON.parse(xhr.responseText);
+          document.getElementById("usernameDropdown").textContent =  userData.username;
+          document.getElementById("userIdDropdown").textContent = "Employee Id: " +userData.employee_id;
+        } else {
+          // Request failed, handle error if necessary
+          console.error("XHR request failed.");
+        }
+      }
+    };
+    xhr.send();
+  }
+  // Call the function to populate data on page load
+window.onload = function (){
+  populateUserData();
+}
+});
 </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

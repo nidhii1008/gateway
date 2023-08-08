@@ -11,7 +11,7 @@ namespace ITGateway.Models
     [Key]
     public int id { get; set; }
     [StringLength(100)]
-    public string username { get; set; }
+    public string? username { get; set; }
     [StringLength(255)]
     public string password { get; set; }
     public int employee_id { get; set; }

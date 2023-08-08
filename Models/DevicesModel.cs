@@ -16,7 +16,7 @@ namespace IT_Gateway.Models
     [MaxLength(100)]
     public string created_by { get; set; }
     [MaxLength(100)]
-    public string updated_by { get; set; }
+    public string? updated_by { get; set; }
     }
 }
 // public class adminViewModel{

@@ -14,8 +14,8 @@ namespace IT_Gateway.Models
         public int device_id { get; set; }
         public DateTime? created_at_utc { get; set; }
         public DateTime? updated_at_utc { get; set; }
-        public string device_state { get; set; }
-        public string Specifications {get;set;}
+        public string? device_state { get; set; }
+        public string? Specifications {get;set;}
         // Navigation property for the associated device (assuming you have a Device entity)
         public virtual DevicesModel Device { get; set; }
     }

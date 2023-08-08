@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Http;
 using IT_Gateway.Models;
+// using System.Web.Mvc; 
 namespace ITGateway.Controllers;
 public class HomeController : Controller
 {
@@ -25,6 +26,7 @@ public class HomeController : Controller
     //     // Your logic here
     //     return PartialView("_BeforeLayoutContent");
     // }
+ 
     public IActionResult Index()
     {
         return View();
@@ -33,6 +35,12 @@ public class HomeController : Controller
     {
         return View();
     }
+
+      public IActionResult UserPage()
+    {
+        return View();
+    }
+
     // public IActionResult Admin()
     // {
     //     return View();
@@ -83,7 +91,13 @@ public class HomeController : Controller
             Console.WriteLine(x);
             //    string username = _httpContextAccessor.HttpContext.Session.GetString("Username"); retrieving
             // _httpContextAccessor.HttpContext.Session.SetInt32("Age", 30);
-             return RedirectToAction("Admin");
+            // var emp = _context.employees.Find((_context.UserInfo.SingleOrDefault(u => u.username == userName).employee_id));
+            //  if(emp.IsAdmin==1){
+            //  return RedirectToAction("Admin");
+            //  }
+            //  else if(emp.IsAdmin==0){
+            //     return RedirectToAction("User");
+            //  }
         }
          return View("Index");
     }
@@ -220,55 +234,107 @@ public async Task<IActionResult> AddUser(UserInfoModel UserInfo)
     await _context.SaveChangesAsync();
     return Ok("User added successfully");
 }
-// [HttpGet("/Home/Admin/GetUsername")]
-// public ActionResult<UserData> GetUsername(){
-//     var userData=new UserData();
-//     string userName=_httpContextAccessor.HttpContext.Session.GetString("Username");
-//     var user=_context.UserInfo.FirstOrDefault(u=>u.username==userName);
-//     userData.username=user.username;
-//     userData.employee_id=user.employee_id;
-//     return userData;
-// }
-// public class UserData{
-//     public string username {get;set;}
-//     public int employee_id{get;set;}
-// }
+[HttpGet("/Home/Admin/GetUsername")]
+public ActionResult<UserData> GetUsername(){
+    var userData=new UserData();
+    string userName=_httpContextAccessor.HttpContext.Session.GetString("Username");
+    var user=_context.UserInfo.FirstOrDefault(u=>u.username==userName);
+    userData.username=user.username;
+    userData.employee_id=user.employee_id;
+    return userData;
+}
+public class UserData{
+    public string username {get;set;}
+    public int employee_id{get;set;}
+}
 // API endpoint to add a device to the inventory
+//add to inventory
 [HttpPost("/Home/Admin/AddToInventory")]
-public IActionResult AddToInventory([FromBody] inventoryModel inventoryEntry, string specifications)
+public IActionResult AddToInventory([FromBody] inventoryModel inventoryEntry)
 {
-    // Retrieve the device based on the selected device_id
+  
     var device = _context.Device.FirstOrDefault(d => d.device_id == inventoryEntry.device_id);
     if (device == null)
     {
         return NotFound("Device not found.");
     }
-    // Set the created_at_utc and updated_at_utc properties
+
     inventoryEntry.device_id = device.device_id;
     inventoryEntry.created_at_utc = DateTime.UtcNow;
     inventoryEntry.updated_at_utc = DateTime.UtcNow;
     inventoryEntry.device_state="Not Assigned";
-    // If specifications are not provided or empty, set it to "NA"
-    // if (string.IsNullOrWhiteSpace(specifications))
-    // {
-    //     inventoryEntry.Specifications = "NA";
-    // }
-    // else
-    // {
-        inventoryEntry.Specifications = specifications;
-    // }
-    // Add the inventory entry to the database
+
+        inventoryEntry.Specifications = inventoryEntry.Specifications;
+    Console.WriteLine(inventoryEntry.Specifications);
     _context.inventory.Add(inventoryEntry);
     _context.SaveChanges();
     return Ok();
 }
-//   private readonly Dictionary<string, int[]> dataMap = new Dictionary<string, int[]>
-//     {
-//         { "option1", new int[] { , 30, 30 } },
-//         { "option2", new int[] { 10, 50, 40 } },
-//         { "option3", new int[] { 20, 20, 60 } },
-//         { "option4", new int[] { 25, 35, 40 } }
+// public class inventoryData{
+//     public int device_id{get; set;}
+//     public string Specifications{get;set;}
+// }
+// [HttpPost("/Home/Admin/AddToInventory")]
+// public IActionResult AddToInventory([FromBody] inventoryData inventoryEntry){
+//     var newEntry= new inventoryModel{
+//         device_id=inventoryEntry.device_id,
+//         updated_at_utc=DateTime.UtcNow,
+//         device_state="Not Assigned",
 //     };
+//     _context.inventory.Add(newEntry);
+//     _context.SaveChanges();
+//     return Ok();
+// }
+
+// [HttpDelete("/Home/Admin/DeallocateDevice")]
+// public ActionResult<string> DeallocateDevice(int employeeId, int deviceId){
+// var user=_context.AssignedDevices.Select(u=> u.employee_id==employeeId );
+// }
+ public class EmployeeDeviceData
+    {
+        public int EmployeeId { get; set; }
+        public Guid InventoryId { get; set; }
+        public string DeviceName { get; set; }
+    }
+    private List<AssignedDevicesModel> QueryAssignedTable(int employeeId)
+    {
+        return _context.AssignedDevices.Where(device => device.employee_id == employeeId).ToList();
+    }
+    private List<inventoryModel> QueryInventoryTable(Guid inventoryId)
+    {
+        return _context.inventory.Where(inventory => inventory.inventory_id == inventoryId).ToList();
+    }
+    public class getEmployeeData{
+        public int  employee_id {get;set;}  
+    }
+    [HttpGet("/Home/Admin/DisplayDevices/GetEmployeeDeviceData")]
+   public ActionResult<IEnumerable<EmployeeDeviceData>> GetEmployeeDeviceData([FromQuery] int employee_id)
+{
+    Console.WriteLine(employee_id);
+    if (employee_id <= 0)
+    {
+        return BadRequest("Please provide a valid Employee ID.");
+    }
+    List<EmployeeDeviceData> employeeData = new List<EmployeeDeviceData>();
+    //  Query assigned table and get inventory ids
+    List<AssignedDevicesModel> assignedDevices = QueryAssignedTable(employee_id);
+    List<Guid> inventoryIds = assignedDevices.Select(device => device.inventory_id).ToList();
+    // Query inventory table and get device_ids
+    foreach (Guid inventoryId in inventoryIds)
+    {
+        List<inventoryModel> inventoryData = QueryInventoryTable(inventoryId);
+        if (inventoryData != null)
+        {
+            employeeData.Add(new EmployeeDeviceData
+            {
+                EmployeeId = employee_id,
+                InventoryId = inventoryId,
+                DeviceName = _context.Device.Find( inventoryData.FirstOrDefault(u => u.inventory_id == inventoryId).device_id).device_name,
+            });
+        }
+    }
+    return employeeData;
+}
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
