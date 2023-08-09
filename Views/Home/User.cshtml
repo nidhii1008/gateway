@@ -1,0 +1,12 @@
+@using IT_Gateway.Models;
+
+@model List<DevicesModel>;
+
+@{
+    ViewData["Title"] = "User Page";
+}
+
+@{
+    Layout = null;
+}
+ @Html.Partial("_User",@Model);

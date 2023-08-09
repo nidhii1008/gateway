@@ -14,7 +14,7 @@ namespace IT_Gateway.Models
     public DateTime? created_at_utc { get; set; }
     public DateTime? updated_at_utc { get; set; }
     [MaxLength(100)]
-    public string created_by { get; set; }
+    public string? created_by { get; set; }
     [MaxLength(100)]
     public string? updated_by { get; set; }
     }

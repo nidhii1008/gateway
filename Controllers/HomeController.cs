@@ -36,10 +36,10 @@ public class HomeController : Controller
         return View();
     }
 
-      public IActionResult UserPage()
-    {
-        return View();
-    }
+    //   public IActionResult User()
+    // {
+    //     return View();
+    // }
 
     // public IActionResult Admin()
     // {
@@ -70,6 +70,12 @@ public class HomeController : Controller
         }
         return devicesList;
     }
+    [HttpGet("/Home/User")]
+ public IActionResult User()
+    {
+        List<DevicesModel> devices = GetDevicesFromBackend();
+        return View(devices);
+    }
 //    b
     [HttpGet("/Home/Index")]
     public ActionResult<string> UserLogin(string userName, string Password)
@@ -91,16 +97,63 @@ public class HomeController : Controller
             Console.WriteLine(x);
             //    string username = _httpContextAccessor.HttpContext.Session.GetString("Username"); retrieving
             // _httpContextAccessor.HttpContext.Session.SetInt32("Age", 30);
-            // var emp = _context.employees.Find((_context.UserInfo.SingleOrDefault(u => u.username == userName).employee_id));
-            //  if(emp.IsAdmin==1){
-            //  return RedirectToAction("Admin");
-            //  }
-            //  else if(emp.IsAdmin==0){
-            //     return RedirectToAction("User");
-            //  }
+            var emp = _context.employees.Find(user.employee_id);
+            Console.WriteLine(emp.IsAdmin);
+             if(emp.IsAdmin==1){
+             return RedirectToAction("Admin");
+             }
+             else if(emp.IsAdmin==0){
+                return RedirectToAction("User");
+             }
         }
          return View("Index");
     }
+    [HttpGet("Home/User/CheckAvailability")]
+    public ActionResult<string> CheckAvailability(int deviceId, string specifications){
+        var user=_context.inventory.FirstOrDefault(u=> u.device_id==deviceId && u.Specifications==specifications);
+        if(user==null){
+            return "Not Available";
+        }
+
+        return "Available";
+    }
+
+    [HttpGet("Home/User/GetUserDevices")]
+    
+   public ActionResult<IEnumerable<EmployeeDeviceData>> GetUserDevices()
+{
+        
+    string userName=_httpContextAccessor.HttpContext.Session.GetString("Username");
+    var user=_context.UserInfo.FirstOrDefault(u=>u.username==userName);
+    int employee_id=user.employee_id;
+    Console.WriteLine(employee_id);
+    Console.WriteLine(employee_id);
+    if (employee_id <= 0)
+    {
+        return BadRequest("Please provide a valid Employee ID.");
+    }
+    List<EmployeeDeviceData> employeeData = new List<EmployeeDeviceData>();
+    //  Query assigned table and get inventory ids
+    List<AssignedDevicesModel> assignedDevices = QueryAssignedTable(employee_id);
+    List<Guid> inventoryIds = assignedDevices.Select(device => device.inventory_id).ToList();
+    // Query inventory table and get device_ids
+    foreach (Guid inventoryId in inventoryIds)
+    {
+        List<inventoryModel> inventoryData = QueryInventoryTable(inventoryId);
+        if (inventoryData != null)
+        {
+            employeeData.Add(new EmployeeDeviceData
+            {
+                EmployeeId = employee_id,
+                InventoryId = inventoryId,
+                DeviceName = _context.Device.Find( inventoryData.FirstOrDefault(u => u.inventory_id == inventoryId).device_id).device_name,
+            });
+        }
+    }
+    return employeeData;
+}
+    
+
 [HttpPost("/Home/Admin")]
 public IActionResult AddDevice(string deviceName)
 {
@@ -119,6 +172,7 @@ public IActionResult AddDevice(string deviceName)
     };
     _context.Device.Add(device);
     _context.SaveChanges();
+    //    alert("Device added to inventory successfully.");
     return Json(new { Message = "Device added successfully." });
 }
     [HttpPost("/Home/Admin/AssignDevice")]
@@ -243,6 +297,16 @@ public ActionResult<UserData> GetUsername(){
     userData.employee_id=user.employee_id;
     return userData;
 }
+
+[HttpGet("/Home/User/GetUserName")]
+public ActionResult<UserData> GetUserName(){
+    var userData=new UserData();
+    string userName=_httpContextAccessor.HttpContext.Session.GetString("Username");
+    var user=_context.UserInfo.FirstOrDefault(u=>u.username==userName);
+    userData.username=user.username;
+    userData.employee_id=user.employee_id;
+    return userData;
+}
 public class UserData{
     public string username {get;set;}
     public int employee_id{get;set;}
@@ -334,6 +398,28 @@ public IActionResult AddToInventory([FromBody] inventoryModel inventoryEntry)
         }
     }
     return employeeData;
+}
+public class inventoryData{
+    public int serial {get; set;}
+    public Guid inventory_id {get; set;} 
+    public string Specifications{get; set;}
+}
+[HttpGet("/Home/Admin/GetInventoryTable")]
+
+public ActionResult<IEnumerable<inventoryData>> GetInventoryTable(string deviceState, int device_id){
+   var filteredInventory = _context.inventory // Replace with your actual DbSet name
+    .Where(inventory => inventory.device_state == deviceState && inventory.device_id == device_id)
+    .ToList(); // Fetch data into memory
+
+var indexedInventory = filteredInventory.Select((inventory, index) => new inventoryData
+{
+    serial = index + 1, // Assign serial number based on index in memory
+    inventory_id = inventory.inventory_id,
+    Specifications = inventory.Specifications
+})
+.ToList();
+    Console.WriteLine(indexedInventory);
+    return indexedInventory;
 }
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

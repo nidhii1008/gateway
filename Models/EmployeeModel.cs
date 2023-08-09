@@ -17,11 +17,11 @@ namespace ITGateway.Models
     public DateTime? created_at_utc { get; set; } // Nullable DateTime
     public DateTime? updated_at_utc { get; set; } // Nullable DateTime
     [StringLength(100)] // String Length Constraint
-    public string created_by { get; set; }
+    public string? created_by { get; set; }
     [StringLength(100)] // String Length Constraint
-    public string updated_by { get; set; }
+    public string? updated_by { get; set; }
     [StringLength(255)] // String Length Constraint
-    public string employee_mail { get; set; }
+    public string? employee_mail { get; set; }
         public int IsAdmin { get; set; }
     // Additional constraints or properties can be added as needed
 }

@@ -1,0 +1,553 @@
+@using IT_Gateway.Models;
+@model List<DevicesModel>;
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Title</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- <link rel="stylesheet" href="index.css" /> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --rightwidth: 350px;
+            --fullpagew: 95vw;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Open Sans", sans-serif;
+            margin: 0;
+        }
+
+        nav {
+            width: 100%;
+            z-index: 9999;
+        }
+
+        .main-content {
+            padding: 1rem;
+            padding-top: 6rem;
+        }
+
+        .left {
+            width: calc(var(--fullpagew) - var(--rightwidth));
+            display: inline-block;
+        }
+
+        .right {
+            display: inline-block;
+            position: relative;
+            box-shadow: 0px -1px 13px 4px rgba(157, 157, 157, 0.4);
+            -webkit-box-shadow: 0px -1px 13px 4px rgba(157, 157, 157, 0.4);
+            -moz-box-shadow: 0px -1px 13px 4px rgba(157, 157, 157, 0.4);
+            border-radius: 10px;
+            width: var(--rightwidth);
+        }
+
+        #chart-container {
+            width: 300px;
+            height: 300px;
+            transition: 0.4s ease;
+            opacity: 0;
+            margin: 20px;
+        }
+
+        #color-dropdown {
+            margin: 20px;
+        }
+
+        #loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            /* height: 100%; */
+            opacity: 1;
+            /* Initially visible */
+            transition: opacity 0.5s ease-in-out;
+            /* Add fade-out transition */
+        }
+
+        select {
+            padding: 0.5rem;
+            border-radius: 5px;
+            width: 100%;
+            transition: 0.4s ease-in-out;
+        }
+
+        select:focus {
+            outline: none;
+        }
+
+        select:hover,
+        option:hover {
+            cursor: pointer;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 10vh;
+            border-top: 1px solid rgb(193, 193, 193);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .btn>i {
+            color: rgb(255, 183, 0) !important;
+        }
+
+        .btn:hover>i,
+        .btn:focus>i,
+        .btn:active>i {
+            transition: 0.3s ease-in-out;
+            cursor: pointer;
+            color: #d38600 !important;
+        }
+
+
+        .menu {
+            background-color: #343A40;
+            z-index: 99;
+            width: 400px;
+            height: 100%;
+            display: flex;
+            position: fixed;
+            margin-top: -750px;
+            transition: .3s ease-in-out;
+            -webkit-box-shadow: 3px -1px 5px 0px rgba(0, 0, 0, 0.75);
+            -moz-box-shadow: 3px -1px 5px 0px rgba(0, 0, 0, 0.75);
+            box-shadow: 3px -1px 5px 0px rgba(0, 0, 0, 0.75);
+            right: 0;
+        }
+
+        .mail-container {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 0;
+        }
+
+        .mail-container {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .mail-form {
+            display: flex;
+            flex-direction: column;
+            background-color: #212529;
+        }
+
+        .form-input {
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid #212529;
+            border-radius: 5px;
+        }
+
+        .form-submit {
+            margin-top: 10px;
+            background-color: #0078D4;
+            color: #212529;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #005a9e;
+        }
+        
+        @@keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        */ */ .mail-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(90vh - 3rem);
+        }
+
+        .mail-form {
+            background-color: #343a40;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        #uiSubject,
+        #mainTextarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid white;
+            border-radius: 4px;
+        }
+
+        #openEmail {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        #openEmail:hover {
+            background-color: #0056b3;
+        }
+
+        .user-card {
+            width: 500px;
+            max-width: 90%;
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 0;
+            margin-left: 0px;
+        }
+
+        .user-card h4 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #212529;
+        }
+
+        .user-card p {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+
+        .user-card hr {
+            border-color: #dee2e6;
+        }
+
+        .arrow {
+            cursor: pointer;
+            background-color: rgb(244, 186, 51);
+            height: 100vh;
+            width: 12px;
+            position: absolute;
+            left: 0;
+        }
+    @@media (max-width: 768px) {
+        :root {
+            --rightwidth: 100%; 
+        }
+
+        .left {
+            width: 100%;
+        }
+
+        .right {
+            width: 100%;
+        }
+
+        /* Adjust the margin-top here for better responsiveness */
+        .menu {
+            width: 100%;
+            max-width: 100%;
+            margin-top: 0;
+            transform: translateY(-100%); /* Hide the menu initially */
+        }
+
+        /* Your existing arrow styles for smaller screens */
+        .arrow {
+            display: block; 
+        }
+
+        /* Show the menu when it's active */
+        .menu.show {
+            transform: translateY(0);
+        }
+    }
+
+h2{
+    width: 495px;
+    border-radius: 5px;
+    text-align: center;
+    font-family: 'Bebas Neue', cursive;
+    padding-bottom: 3px;
+    background-image: linear-gradient(rgb(255, 183, 0), gold);
+    background-repeat: no-repeat;
+}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+</head>
+
+<body>
+    <nav class="navbar position-fixed navbar-expand-sm navbar-dark bg-dark"
+        style="min-height: 10vh; box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5)">
+        <a class="navbar-brand" href="#"><img src="https://cginfinity.com/wp-content/uploads/2022/04/cgi-logo.svg"
+                alt="" /></a>
+
+        <ul class="navbar-nav ml-auto mr-0 mt-2 mt-lg-0">
+            <li class="nav-item d-flex flex-row-reverse dropdown">
+                <a class="btn" style="color: white" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-user fa-xl"></i>
+                </a>
+                <div class="dropdown-menu" style="
+              box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5);
+              left: auto;
+              position: absolute;
+            " aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" id="usernameDropdown" href="#">User Name</a>
+                <a class="dropdown-item" id="userIdDropdown" href="#">User Id</a>
+                    <hr />
+                    <a class="dropdown-item" href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="row mt-5">
+                <div class="col-md-8">
+                    <h2>Devices assigned</h2>
+                    <div class="user-card">
+                        <div id="info">
+                         
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row mt-5">
+                <div class="col-md-8">
+                    <h2>Check availability</h2>
+                    <div class="user-card">
+                        <div class="form-group">
+                            <label for="deviceType">Device Type:</label>
+                            <select class="form-control" id="deviceType" name="device_id">
+                               @if (Model != null)
+                  {
+                    @foreach (var device in Model)
+                    {
+                      <option value="@device.device_id">@device.device_name</option>
+                    }
+                  }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                           <label for="specificationsS">Specifications:</label>
+                <select class="form-control" id="specificationsS" name="Specifications">
+                
+                </select>
+                        </div>
+                        <button type="submit" class="btn btn-dark" id="checkButton">Check</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <div class="arrow"></div>
+            <div class="mail-container">
+                <div class="mail-form">
+                    <h3>Mail us your issues!</h3>
+                    <input type="text" id="uiSubject" placeholder="Enter subject">
+                    <textarea id="mainTextarea" rows="10" cols="30"></textarea>
+                    <a href="mailto:sana.gupta@cginfinity.comstar" id="openEmail">Send</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById("openEmail").addEventListener("click", function () {
+                var emailBody = document.getElementById("mainTextarea").value;
+                var recipient = "itrequest@cginfinity.com";
+                var subject = document.getElementById("uiSubject").value;
+
+                var mailtoLink = "mailto:" + recipient + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(emailBody);
+
+                window.location.href = mailtoLink;
+            });
+        </script>
+
+        <script>
+            const button = document.querySelector('.arrow')
+            const menu = document.querySelector('.menu')
+            button.addEventListener('click', () => {
+                menu.classList.toggle('show');
+            })
+        </script>
+        <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Function to make an XHR request when the device type is selected
+    function updateSpecifications() {
+      var selectedDeviceId = document.getElementById("deviceType").value;
+      // Send the XHR request to the server endpoint
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+          // Parse the JSON response
+          var specifications = JSON.parse(xhr.responseText);
+          console.log(specifications);
+          var specificationsDropdown = document.getElementById("specificationsS");
+          specificationsDropdown.innerHTML = ""; 
+          if (specifications.length === 0) {
+            var option = document.createElement("option");
+            option.value = "NA";
+            option.textContent = "NA";
+            specificationsDropdown.appendChild(option);
+          } else {
+            for (var i = 0; i < specifications.length; i++) {
+              var option = document.createElement("option");
+              option.value = specifications[i].value;
+              option.textContent = specifications[i].text;
+              specificationsDropdown.appendChild(option);
+            }
+          }
+        }
+      };
+      xhr.send();
+    }
+  
+      document.getElementById("deviceType").addEventListener("change", updateSpecifications);
+      window.onload = function (){
+      updateSpecifications();
+}
+  
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Function to make the XHR request and populate data
+  function populateUserData() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/Home/User/GetUserName", true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          // Request successful, parse response and update dropdown items
+          var userData = JSON.parse(xhr.responseText);
+          document.getElementById("usernameDropdown").textContent =  userData.username;
+          document.getElementById("userIdDropdown").textContent = "Employee Id: " +userData.employee_id;
+        } else {
+          // Request failed, handle error if necessary
+          console.error("XHR request failed.");
+        }
+      }
+    };
+    xhr.send();
+  }
+  // Call the function to populate data on page load
+window.onload = function (){
+  populateUserData();
+}
+});
+</script>
+
+<script>
+    document.getElementById("checkButton").addEventListener("click", function() {
+        var deviceId = document.getElementById("deviceType").value;
+        var specifications = document.getElementById("specificationsS").value;
+
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    alert(xhr.responseText); // Display the response (Available or Not Available)
+                } else {
+                    alert("An error occurred while checking availability.");
+                }
+            }
+        };
+
+        xhr.open("GET", "/Home/User/CheckAvailability?deviceId=" + deviceId + "&specifications=" + specifications);
+        xhr.send();
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var devices = JSON.parse(xhr.responseText);
+                    console.log(devices);
+                    var infoDiv = document.getElementById("info");
+                    
+                    // Clear existing content
+                    infoDiv.innerHTML = "";
+                    
+                    // Loop through devices and append to the infoDiv
+                    devices.forEach(function (device) {
+                        var p = document.createElement("p");
+                        p.innerHTML = "<strong>" + device.deviceName + ":</strong> " + device.inventoryId;
+                        infoDiv.appendChild(p);
+                    });
+                } else {
+                    console.error("An error occurred while fetching data.");
+                }
+            }
+        };
+        
+        xhr.open("GET", "/Home/User/GetUserDevices");
+        xhr.send();
+    });
+</script>
+
+        
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+</body>
+</html>
+
