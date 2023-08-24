@@ -267,7 +267,7 @@
     }
 
     .table-container {
-      display: none;
+      display: block;
     }
 
     .table-container.active {
@@ -348,126 +348,7 @@
                   </tbody>
                 </table>
               </div>
-              @* <div class="table-container" id="table-unassigned">
-              <!-- Unassigned table -->
-              <table>
-              <tr>
-              <th>S. No.</th>
-              <th>Inventory Id</th>
-              <th>Specifications</th>
-              </tr>
-              <tr>
-              <td>Data 1,1</td>
-              <td>Data 1,2</td>
-              <td>Data 1,3</td>
-              </tr>
-              <tr>
-              <td>Data 2,1</td>
-              <td>Data 2,2</td>
-              <td>Data 2,3</td>
-              </tr>
-              <tr>
-              <td>Data 3,1</td>
-              <td>Data 3,2</td>
-              <td>Data 3,3</td>
-              </tr>
-              <tr>
-              <td>Data 4,1</td>
-              <td>Data 4,2</td>
-              <td>Data 4,3</td>
-              </tr>
-              <tr>
-              <td>Data 5,1</td>
-              <td>Data 5,2</td>
-              <td>Data 5,3</td>
-              </tr>
-              <tr>
-              <td>Data 6,1</td>
-              <td>Data 6,2</td>
-              <td>Data 6,3</td>
-              </tr>
-              <tr>
-              <td>Data 7,1</td>
-              <td>Data 7,2</td>
-              <td>Data 7,3</td>
-              </tr>
-              <tr>
-              <td>Data 8,1</td>
-              <td>Data 8,2</td>
-              <td>Data 8,3</td>
-              </tr>
-              <tr>
-              <td>Data 9,1</td>
-              <td>Data 9,2</td>
-              <td>Data 9,3</td>
-              </tr>
-              <tr>
-              <td>Data 10,1</td>
-              <td>Data 10,2</td>
-              <td>Data 10,3</td>
-              </tr>
-              </table>
-              </div> *@
-              @* <div class="table-container" id="table-repair">
-              <!-- Repair table -->
-              <table>
-              <tr>
-              <th>S. No.</th>
-              <th>Inventory Id</th>
-              <th>Specifications</th>
-              </tr>
-              <tr>
-              <td>Data 1,1</td>
-              <td>Data 1,2</td>
-              <td>Data 1,3</td>
-              </tr>
-              <tr>
-              <td>Data 2,1</td>
-              <td>Data 2,2</td>
-              <td>Data 2,3</td>
-              </tr>
-              <tr>
-              <td>Data 3,1</td>
-              <td>Data 3,2</td>
-              <td>Data 3,3</td>
-              </tr>
-              <tr>
-              <td>Data 4,1</td>
-              <td>Data 4,2</td>
-              <td>Data 4,3</td>
-              </tr>
-              <tr>
-              <td>Data 5,1</td>
-              <td>Data 5,2</td>
-              <td>Data 5,3</td>
-              </tr>
-              <tr>
-              <td>Data 6,1</td>
-              <td>Data 6,2</td>
-              <td>Data 6,3</td>
-              </tr>
-              <tr>
-              <td>Data 7,1</td>
-              <td>Data 7,2</td>
-              <td>Data 7,3</td>
-              </tr>
-              <tr>
-              <td>Data 8,1</td>
-              <td>Data 8,2</td>
-              <td>Data 8,3</td>
-              </tr>
-              <tr>
-              <td>Data 9,1</td>
-              <td>Data 9,2</td>
-              <td>Data 9,3</td>
-              </tr>
-              <tr>
-              <td>Data 10,1</td>
-              <td>Data 10,2</td>
-              <td>Data 10,3</td>
-              </tr>
-              </table>
-              </div> *@
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -572,8 +453,9 @@
               <input type="text" class="form-control" id="deviceName" name="deviceName" required>
             </div>
             <!-- Button -->
-            <button type="submit" class="btn btn-dark add-devtype-btn" onclick="addDevice()">Submit</button>
+            <button type="submit" class="btn btn-dark add-devtype-btn">Submit</button>
           </form>
+          <div id="alertMessage" class="alert" style="display: none;"></div>
         </div>
       </div>
       <div class="col-4">
@@ -612,12 +494,12 @@
             <!-- Employee ID Input Field -->
             <div class="form-group">
               <label for="employeeID">Employee ID:</label>
-              <input type="text" class="form-control" id="employeeID" placeholder="Enter Employee ID">
+              <input type="text" class="form-control" id="employeeID" name="employee_id" placeholder="Enter Employee ID">
             </div>
             <!-- Device Type Dropdown -->
             <div class="form-group">
               <label for="deviceType">Device Type:</label>
-              <select class="form-control" id="deviceType" name="device_">
+              <select class="form-control" id="deviceType" name="device_id">
                 @if (Model != null)
                 {
                   @foreach (var device in Model)
@@ -628,7 +510,7 @@
               </select>
             </div>
             <!-- Button -->
-            <button type="submit" class="btn btn-dark">Submit</button>
+            <button type="button" class="btn btn-dark" onclick="submitForm()">Submit</button>
           </form>
         </div>
       </div>
@@ -683,6 +565,9 @@
       </div>
     </div>
   </div>
+    <footer>
+    <p>© 2023 CG Infinity. All rights reserved</p>
+  </footer>
   <script>
     const ctx = document.getElementById('myPieChart').getContext('2d');
     let myPieChart;
@@ -698,7 +583,7 @@
       if (myPieChart) {
         myPieChart.destroy();
       }
-      // Show the loading message
+
       setTimeout(() => {
         myPieChart = new Chart(ctx, {
           type: 'pie',
@@ -724,20 +609,20 @@
             }
           }
         });
-        // Hide the loading message and show the chart
+
         document.getElementById('chart-container').style.opacity = 1;
-      }); // Simulating a 2-second delay for the loading effect (you can adjust the delay as needed)
+      });
     }
-    // Initial chart update on page load
+
     window.addEventListener('load', updateChart);
   </script>
   @* for assign a device dropdown *@
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Function to make an XHR request when the device type is selected
+
       function updateSpecifications() {
         var selectedDeviceId = document.getElementById("deviceTypeS").value;
-        // Send the XHR request to the server endpoint
+
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
         xhr.onreadystatechange = function () {
@@ -860,250 +745,224 @@
       xhr.send(JSON.stringify(jsonData));
     });
   </script>
-  @* add device type *@
+
+  @* addtoinventory xhr *@
   <script>
-    // Fetch device types and populate the deviceTypeDropdown
-    fetch("/Home/Index/GetDeviceTypes")
-      .then(response => response.json())
-      .then(deviceTypes => {
-        const deviceTypeDropdown = document.getElementById("deviceType");
-        deviceTypes.forEach(deviceType => {
-          const option = document.createElement("option");
-          option.value = deviceType;
-          option.text = deviceType;
-          deviceTypeDropdown.appendChild(option);
-        });
-      })
-      .catch(error => {
-        console.error("Error fetching device types:", error);
-      });
-    // Wait for the page to load
+
     document.addEventListener("DOMContentLoaded", () => {
-      // Get the form element
+
       const form = document.getElementById("addToInventoryForm");
-      // Add a submit event listener to the form
+
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        // Get the selected values for deviceType and specifications
-        const deviceType = document.getElementById("deviceType").value;
-        const specifications = document.getElementById("specifications").value;
-        // Create a new entry for the inventoryModel
-        const inventoryEntry = {
-          inventory_id: "", // The server will generate the inventory_id
-          device_id: 0, // We'll update this later based on the deviceType
-          created_at_utc: "",
-          updated_at_utc: "",
-          device_state: "", // Replace this with the desired default value
+
+        const device_id = parseInt(document.getElementById("deviceTypeA").value);
+        const specifications = document.getElementById("specificationsA").value;
+
+        const data = {
+
+          device_id: device_id,
           Specifications: specifications,
         };
-        // Call the API to get the device_id and add the new inventory entry
-        try {
-          const deviceIdResponse = await fetch(`/Home/Admin/GetDeviceIdByType/${deviceType}`);
-          const deviceId = await deviceIdResponse.json();
-          inventoryEntry.device_id = deviceId;
-          const addToInventoryResponse = await fetch("/api/AddDeviceToInventory", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(inventoryEntry),
-          });
-          if (addToInventoryResponse.ok) {
-            // Handle success
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("POST", "/Home/Admin/AddToInventory", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) {
+
             alert("Device added to inventory successfully.");
             form.reset(); // Clear the form inputs
           } else {
-            // Handle failure
+
             alert("Failed to add device to inventory.");
           }
-        } catch (error) {
-          // Handle errors and show an error message
-          alert(error.message || "An error occurred.");
-        }
+        };
+
+        xhr.onerror = function () {
+          alert("An error occurred while making the request.");
+        };
+        console.log(data);
+
+        xhr.send(JSON.stringify(data));
       });
+    });
   </script>
-  @* addtoinventory xhr *@
-  <script>
-      // Wait for the page to load
-      document.addEventListener("DOMContentLoaded", () => {
-        // Get the form element
-        const form = document.getElementById("addToInventoryForm");
-        // Add a submit event listener to the form
-        form.addEventListener("submit", async (event) => {
-          event.preventDefault();
-          // Get the selected values for device_id and specifications
-          const device_id = parseInt(document.getElementById("deviceTypeA").value); // Parse the device_id to an integer
-          const specifications = document.getElementById("specificationsA").value;
-          // Create an object with only the required parameters
-          const data = {
-            //device type
-            device_id: device_id,
-            Specifications: specifications,
-          };
-          // Create a new XMLHttpRequest object
-          const xhr = new XMLHttpRequest();
-          // Set up the request
-          xhr.open("POST", "/Home/Admin/AddToInventory", true);
-          xhr.setRequestHeader("Content-Type", "application/json");
-          // Handle the response
-          xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              // Handle success
-              alert("Device added to inventory successfully.");
-              form.reset(); // Clear the form inputs
-            } else {
-              // Handle failure
-              alert("Failed to add device to inventory.");
-            }
-          };
-          // Handle network errors
-          xhr.onerror = function () {
-            alert("An error occurred while making the request.");
-          };
-          console.log(data);
-          // Send the request with the JSON payload
-          xhr.send(JSON.stringify(data));
-        });
-      });
-  </script>
-  @* <script>
-  function showTable(tableId) {
-  const allContainers = document.querySelectorAll('.table-container');
-  allContainers.forEach(container => {
-  container.classList.remove('active');
-  });
-  const selectedContainer = document.getElementById(`table-${tableId}`);
-  if (selectedContainer) {
-  selectedContainer.classList.add('active');
-  }
-  }
-  </script> *@
+
   @* display devices *@
   <script>
-      document.getElementById("displayButton").addEventListener("click", function () {
-        // Get the employee ID from the input field
-        var employeeIdInput = document.getElementById("employeeIdInput");
-        var employeeId = parseInt(employeeIdInput.value);
-        console.log(employeeId);
-        // Create an XHR object
-        const xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-              try {
-                const data = JSON.parse(xhr.responseText);
-                // Assuming the response is an array (list) of objects
-                if (Array.isArray(data)) {
-                  // Assuming there is a textarea element with the ID 'Display'
-                  const displayElement = document.getElementById('Display');
-                  // Clear previous content if needed
-                  displayElement.value = '';
-                  // Format each item with employeeId and inventoryId in bold and separate lines
-                  data.forEach((item) => {
-                    displayElement.value += `Employee Id: ${item.employeeId}\n`;
-                    displayElement.value += `Serial No.: ${item.inventoryId}\n`;
-                    displayElement.value += `Device: ${item.deviceName}\n\n`;
-                  });
-                } else {
-                  console.error('Received data is not an array:', data);
-                }
-              } catch (error) {
-                console.error('Error parsing JSON response:', error);
-              }
-            } else {
-              console.error('Error:', xhr.status, xhr.statusText);
-            }
-          }
-        };
-        xhr.open('GET', `/Home/Admin/DisplayDevices/GetEmployeeDeviceData?employee_id=${employeeId}`);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        console.log(employeeId);
-        xhr.send();
-      });
-  </script>
-  <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Function to make the XHR request and populate data
-        function populateUserData() {
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", "/Home/Admin/GetUsername", true);
-          xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-              if (xhr.status === 200) {
-                // Request successful, parse response and update dropdown items
-                var userData = JSON.parse(xhr.responseText);
-                document.getElementById("usernameDropdown").textContent = userData.username;
-                document.getElementById("userIdDropdown").textContent = "Employee Id: " + userData.employee_id;
+    document.getElementById("displayButton").addEventListener("click", function () {
+      // Get the employee ID from the input field
+      var employeeIdInput = document.getElementById("employeeIdInput");
+      var employeeId = parseInt(employeeIdInput.value);
+      console.log(employeeId);
+      // Create an XHR object
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              // Assuming the response is an array (list) of objects
+              if (Array.isArray(data)) {
+                // Assuming there is a textarea element with the ID 'Display'
+                const displayElement = document.getElementById('Display');
+                // Clear previous content if needed
+                displayElement.value = '';
+                // Format each item with employeeId and inventoryId in bold and separate lines
+                data.forEach((item) => {
+                  displayElement.value += `Employee Id: ${item.employeeId}\n`;
+                  displayElement.value += `Serial No.: ${item.inventoryId}\n`;
+                  displayElement.value += `Device: ${item.deviceName}\n\n`;
+                });
               } else {
-                // Request failed, handle error if necessary
-                console.error("XHR request failed.");
+                console.error('Received data is not an array:', data);
               }
+            } catch (error) {
+              console.error('Error parsing JSON response:', error);
             }
-          };
-          xhr.send();
+          } else {
+            console.error('Error:', xhr.status, xhr.statusText);
+          }
         }
-        // Call the function to populate data on page load
-        window.onload = function () {
-          populateUserData();
-        }
-      });
+      };
+      xhr.open('GET', `/Home/Admin/DisplayDevices/GetEmployeeDeviceData?employee_id=${employeeId}`);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      console.log(employeeId);
+      xhr.send();
+    });
   </script>
-
   <script>
-      // Add event listeners for radio buttons and dropdown
-      document.addEventListener("DOMContentLoaded", function () {
-        var radioButtons = document.querySelectorAll('input[name="device_state"]');
-        var dropdown = document.getElementById("deviceTypeT");
-
-        radioButtons.forEach(function (radioButton) {
-          radioButton.addEventListener("change", updateTable);
-        });
-
-        dropdown.addEventListener("change", updateTable);
-      });
-
-      function updateTable() {
-        var selectedDeviceState = document.querySelector('input[name="device_state"]:checked').value;
-        var selectedDeviceId = document.getElementById("deviceTypeT").value;
-
+    document.addEventListener("DOMContentLoaded", function () {
+      // Function to make the XHR request and populate data
+      function populateUserData() {
         var xhr = new XMLHttpRequest();
-        var url = `/Home/Admin/GetInventoryTable?deviceState=${selectedDeviceState}&device_id=${selectedDeviceId}`;
-
-        xhr.open("GET", url, true);
-
+        xhr.open("GET", "/Home/Admin/GetUsername", true);
         xhr.onreadystatechange = function () {
           if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
-              var responseData = JSON.parse(xhr.responseText);
-              console.log(responseData);
-              populateTable(responseData);
+              // Request successful, parse response and update dropdown items
+              var userData = JSON.parse(xhr.responseText);
+              document.getElementById("usernameDropdown").textContent = userData.username;
+              document.getElementById("userIdDropdown").textContent = "Employee Id: " + userData.employee_id;
             } else {
-              console.error("Request failed with status:", xhr.status);
+              // Request failed, handle error if necessary
+              console.error("XHR request failed.");
             }
           }
         };
-
         xhr.send();
       }
+      // Call the function to populate data on page load
+      window.onload = function () {
+        populateUserData();
+      }
+    });
+  </script>
 
-      function populateTable(data) {
-        var tableBody = document.getElementById("tableBody");
-        tableBody.innerHTML = "";
+  <script>
 
-        data.forEach(function (item, index) {
-          var newRow = document.createElement("tr");
-          newRow.innerHTML = `
+    document.addEventListener("DOMContentLoaded", function () {
+      var radioButtons = document.querySelectorAll('input[name="device_state"]');
+      var dropdown = document.getElementById("deviceTypeT");
+
+      radioButtons.forEach(function (radioButton) {
+        radioButton.addEventListener("change", updateTable);
+      });
+
+      dropdown.addEventListener("change", updateTable);
+    });
+
+    function updateTable() {
+      var selectedDeviceState = document.querySelector('input[name="device_state"]:checked').value;
+      var selectedDeviceId = document.getElementById("deviceTypeT").value;
+
+      var xhr = new XMLHttpRequest();
+      var url = `/Home/Admin/GetInventoryTable?deviceState=${selectedDeviceState}&device_id=${selectedDeviceId}`;
+
+      xhr.open("GET", url, true);
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            var responseData = JSON.parse(xhr.responseText);
+            console.log(responseData);
+            populateTable(responseData);
+          } else {
+            console.error("Request failed with status:", xhr.status);
+          }
+        }
+      };
+
+      xhr.send();
+    }
+
+    function populateTable(data) {
+      var tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      data.forEach(function (item, index) {
+        var newRow = document.createElement("tr");
+
+        newRow.innerHTML = `
       <td>${index + 1}</td>
       <td>${item.inventory_id}</td>
-      <td>${item.Specifications}</td>
+      <td>${item.specifications}</td>
     `;
 
-          tableBody.appendChild(newRow);
-        });
-      }
+        tableBody.appendChild(newRow);
+      });
+    }
 
   </script>
 
+  <script>
+    document.getElementById('addDeviceForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        addDevice(); // Call the function to add the device
+    });
+
+    function addDevice() {
+        var successMessage = "Device added successfully.";
+     alert(successMessage);
+    }
+</script>
+
+    <script>
+        function submitForm() {
+
+                var employeeIDField = document.getElementById("employeeID");
+    console.log("Employee ID Field Value: " + employeeIDField.value);
+
+    var employeeID = parseInt(employeeIDField.value);
+            var deviceType = parseInt(document.getElementById("deviceType").value);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("DELETE", "/Home/Admin/DeallocateDevice", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        alert("Device removed successfully!");
+                    } else {
+                        alert("Error: " + xhr.statusText);
+                    }
+                }
+            };
+
+            var data = JSON.stringify({
+                employee_id: employeeID,
+                device_id: deviceType
+            });
+            console.log(data);
+
+            xhr.send(data);
+        }
+    </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
@@ -1114,9 +973,6 @@
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</body>
-<footer>
-  <p>© 2023 CG Infinity. All rights reserved</p>
-</footer>
 
+</body>
 </html>

@@ -27,12 +27,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                 IssuerSigningKey = new SymmetricSecurityKey(key)
                             };
                         });
-//  builder.Services.AddDistributedSqlServerCache(options =>
-//         {
-//             options.ConnectionString = builder.Configuration.GetConnectionString("MyConnection");
-//             options.SchemaName = "dbo"; // Optional: Set the schema name for the database table
-//             options.TableName = "Sessions"; // Set the table name for storing sessions
-//         });
+
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSession(options =>
