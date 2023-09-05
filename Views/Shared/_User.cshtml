@@ -308,6 +308,15 @@ h2{
     background-image: linear-gradient(rgb(255, 183, 0), gold);
     background-repeat: no-repeat;
 }
+.btn-close::before {
+  content: "×"; /* Use the '×' character directly */
+  font-size: 2rem; /* Adjust the font size as needed */
+  line-height: 1; /* Center the cross vertically */
+  color: black !important; /* Color of the cross with !important */
+  text-decoration: none !important; /* Remove any underline or strike-through with !important */
+  border: none !important; /* Remove any border with !important */
+  background-color: transparent !important; /* Remove background color with !important */
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -318,11 +327,26 @@ h2{
 </head>
 
 <body>
+
     <nav class="navbar position-fixed navbar-expand-sm navbar-dark bg-dark"
         style="min-height: 10vh; box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5)">
         <a class="navbar-brand" href="#"><img src="https://cginfinity.com/wp-content/uploads/2022/04/cgi-logo.svg"
                 alt="" /></a>
-
+      <div class="modal" id="myModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="modalHeading">OOPS!</h6>
+        <button type="button" class="btn-close" onclick=closeModal() aria-label="Close"></button>
+        
+      </div>
+      <div class="modal-body" > 
+        <p id="modalBody"></p>
+      </div>
+      
+    </div>
+  </div>
+</div>
         <ul class="navbar-nav ml-auto mr-0 mt-2 mt-lg-0">
             <li class="nav-item d-flex flex-row-reverse dropdown">
                 <a class="btn" style="color: white" type="button" id="dropdownMenuButton" data-toggle="dropdown"
@@ -337,7 +361,7 @@ h2{
                 <a class="dropdown-item" id="usernameDropdown" href="#">User Name</a>
                 <a class="dropdown-item" id="userIdDropdown" href="#">User Id</a>
                     <hr />
-                    <a class="dropdown-item" href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+                    <a class="dropdown-item" id="LogOut" href="/"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
                 </div>
             </li>
         </ul>
@@ -399,6 +423,15 @@ h2{
         </div>
 
         <script>
+                    function closeModal() {
+    $('#myModal').modal('hide'); // Hide the modal with the specified ID
+}
+
+        function showModal(heading, text) {
+  document.getElementById("modalHeading").innerHTML = heading;
+            document.getElementById("modalBody").innerHTML = text;
+  $('#myModal').modal('show'); // Show the modal with the specified ID
+}
             document.getElementById("openEmail").addEventListener("click", function () {
                 var emailBody = document.getElementById("mainTextarea").value;
                 var recipient = "itrequest@cginfinity.com";
@@ -417,7 +450,7 @@ h2{
                 menu.classList.toggle('show');
             })
         </script>
-        <script>
+<script>
   document.addEventListener("DOMContentLoaded", function () {
     // Function to make an XHR request when the device type is selected
     function updateSpecifications() {
@@ -431,7 +464,7 @@ h2{
           var specifications = JSON.parse(xhr.responseText);
           console.log(specifications);
           var specificationsDropdown = document.getElementById("specificationsS");
-          specificationsDropdown.innerHTML = ""; 
+          specificationsDropdown.innerHTML = "";
           if (specifications.length === 0) {
             var option = document.createElement("option");
             option.value = "NA";
@@ -449,14 +482,14 @@ h2{
       };
       xhr.send();
     }
-  
-      document.getElementById("deviceType").addEventListener("change", updateSpecifications);
-      window.onload = function (){
-      updateSpecifications();
-}
-  
+
+    document.getElementById("deviceType").addEventListener("change", updateSpecifications);
+
+    // Call updateSpecifications when the page initially loads
+    updateSpecifications();
   });
 </script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -495,7 +528,7 @@ window.onload = function (){
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200) {
-                    alert(xhr.responseText); // Display the response (Available or Not Available)
+                    showModal("Device is ",xhr.responseText); 
                 } else {
                     alert("An error occurred while checking availability.");
                 }
@@ -536,8 +569,25 @@ window.onload = function (){
         xhr.send();
     });
 </script>
+    <script>
 
-        
+      document.getElementById("LogOut").addEventListener("click", function () {
+        console.log("Logout");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/Home/Logout", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              @* window.location.href = "/Home/Index"; *@
+              console.log("Logged out");
+            } else {
+              console.error("Request failed with status:", xhr.status);
+            }
+          }
+        };
+        xhr.send();
+      });
+    </script>
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

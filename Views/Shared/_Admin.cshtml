@@ -289,10 +289,38 @@
       width: 120px;
       /* Adjust the width as needed */
     }
+    /* Style the close button as a cross */
+.btn-close::before {
+  content: "×"; /* Use the '×' character directly */
+  font-size: 2rem; /* Adjust the font size as needed */
+  line-height: 1; /* Center the cross vertically */
+  color: black !important; /* Color of the cross with !important */
+  text-decoration: none !important; /* Remove any underline or strike-through with !important */
+  border: none !important; /* Remove any border with !important */
+  background-color: transparent !important; /* Remove background color with !important */
+}
+
+
+
   </style>
 </head>
 
 <body>
+  <div class="modal" id="myModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="modalHeading">OOPS!</h6>
+        <button type="button" class="btn-close" onclick=closeModal() aria-label="Close"></button>
+        
+      </div>
+      <div class="modal-body" > 
+        <p id="modalBody"></p>
+      </div>
+      
+    </div>
+  </div>
+</div>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark"
     style="min-height: 10vh; box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5)">
     <a class="navbar-brand" href="#"><img src="https://cginfinity.com/wp-content/uploads/2022/04/cgi-logo.svg"
@@ -369,7 +397,7 @@
           <a class="dropdown-item" id="usernameDropdown" href="#">User Name</a>
           <a class="dropdown-item" id="userIdDropdown" href="#">User Id</a>
           <hr />
-          <a class="dropdown-item" href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+          <a class="dropdown-item" id="LogOut" href="/"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
         </div>
       </li>
     </ul>
@@ -426,19 +454,22 @@
       </div>
     </div>
     <div class="right">
-      <div id="color-dropdown">
-        <label for="colors">Select an option: &nbsp;</label>
-        <select id="colors" onchange="updateChart()">
-          <option value="option1">Laptop</option>
-          <option value="option2">Keyboard</option>
-          <option value="option3">Mouse</option>
-          <option value="option4">Charger</option>
-        </select>
-      </div>
-      <div id="chart-container">
-        <canvas id="myPieChart"></canvas>
-      </div>
-    </div>
+  <div id="color-dropdown">
+    <label for="colors">Select an option: &nbsp;</label>
+    <select id="colors">
+      @if (Model != null)
+      {
+        @foreach (var device in Model)
+        {
+          <option value="@device.device_id">@device.device_name</option>
+        }
+      }
+    </select>
+  </div>
+  <div id="chart-container">
+    <canvas id="myPieChart"></canvas>
+  </div>
+</div>
   </div>
   <div class="container">
     <div class="row">
@@ -490,24 +521,16 @@
       <div class="col-4">
         <p class="fn-1">Deallocating device</p>
         <div class="card">
-          <form>
+          <form id="deallocateDevice">
             <!-- Employee ID Input Field -->
             <div class="form-group">
               <label for="employeeID">Employee ID:</label>
-              <input type="text" class="form-control" id="employeeID" name="employee_id" placeholder="Enter Employee ID">
+              <input type="text" class="form-control" id="DemployeeID" name="employee_id" placeholder="Enter Employee ID">
             </div>
             <!-- Device Type Dropdown -->
             <div class="form-group">
-              <label for="deviceType">Device Type:</label>
-              <select class="form-control" id="deviceType" name="device_id">
-                @if (Model != null)
-                {
-                  @foreach (var device in Model)
-                  {
-                    <option value="@device.device_id">@device.device_name</option>
-                  }
-                }
-              </select>
+             <label for="serialNumber">Serial Number:</label>
+              <input type="text" class="form-control" id="serialNumber" name="inventory_id" placeholder="Enter Serial Number">
             </div>
             <!-- Button -->
             <button type="button" class="btn btn-dark" onclick="submitForm()">Submit</button>
@@ -568,34 +591,41 @@
     <footer>
     <p>© 2023 CG Infinity. All rights reserved</p>
   </footer>
-  <script>
-    const ctx = document.getElementById('myPieChart').getContext('2d');
-    let myPieChart;
-    const dataMap = {
-      option1: [40, 30, 30],
-      option2: [10, 50, 40],
-      option3: [20, 20, 60],
-      option4: [25, 35, 40],
-    };
-    function updateChart() {
-      const selectedOption = document.getElementById('colors').value;
-      const data = dataMap[selectedOption];
-      if (myPieChart) {
-        myPieChart.destroy();
-      }
 
-      setTimeout(() => {
-        myPieChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: ['Assigned', 'Unassigned', 'Repair'],
-            datasets: [{
-              data: data,
-              backgroundColor: ['rgb(45, 194, 107)', 'rgb(40, 81, 158)', 'red'],
-              borderWidth: 1
-            }]
-          },
-          options: {
+<script>
+  let myPieChart; 
+  function populatePieChart(deviceId) {
+   
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            
+            console.log(data);
+           console.log(typeof(data));
+
+            console.log(data[0].assignedDevices);
+            if (Array.isArray(data)) {
+              
+              const pieChartElement = document.getElementById('myPieChart');
+              // Clear previous chart if needed
+              if (myPieChart) { // Use the local variable
+                myPieChart.destroy();
+              }
+
+              myPieChart = new Chart(pieChartElement, {
+                type: 'pie',
+                data: {
+                  labels: ['Assigned', 'Unassigned', 'Repair'],
+                  datasets: [{
+                    data: [data[0].assignedDevices, data[0].unassignedDevices, data[0].repairDevices],
+                    backgroundColor: ['rgb(45, 194, 107)', 'rgb(40, 81, 158)', 'red'],
+                    borderWidth: 1
+                  }]
+                },
+                options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
@@ -608,61 +638,46 @@
               }
             }
           }
-        });
+              });
+              // Show the chart container
+              document.getElementById('chart-container').style.opacity = 1;
+            } else {
+              console.error('Received data is not an array:', data);
+            }
+          } catch (error) {
+            console.error('Error while parsing response:', error);
+          }
+        } else {
+          console.error('Request failed with status:', xhr.status);
+        }
+      }
+    };
+    xhr.open('GET', `/Home/Admin/PopulatePieChart?deviceId=${deviceId}`, true);
+    xhr.send();
+  }
 
-        document.getElementById('chart-container').style.opacity = 1;
-      });
-    }
+  // Call the function to populate the pie chart on page load
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get the initial selected device from the dropdown
+    const selectedDeviceId = document.getElementById('colors').value;
+    populatePieChart(selectedDeviceId);
+  });
 
-    window.addEventListener('load', updateChart);
-  </script>
+  // Event listener for the dropdown change
+  document.getElementById('colors').addEventListener('change', function () {
+    const selectedDeviceId = this.value;
+    populatePieChart(selectedDeviceId);
+  });
+
+</script>
+
   @* for assign a device dropdown *@
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
 
-      function updateSpecifications() {
-        var selectedDeviceId = document.getElementById("deviceTypeS").value;
+    function updateSpecifications() {
+      var selectedDeviceId = document.getElementById("deviceTypeS").value;
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-            // Parse the JSON response
-            var specifications = JSON.parse(xhr.responseText);
-            console.log(specifications);
-            // Populate the Specifications dropdown dynamically
-            var specificationsDropdown = document.getElementById("specificationsS");
-            specificationsDropdown.innerHTML = ""; // Clear existing options
-            // Add the new options based on the fetched specifications
-            if (specifications.length === 0) {
-              var option = document.createElement("option");
-              option.value = "NA";
-              option.textContent = "NA";
-              specificationsDropdown.appendChild(option);
-            } else {
-              for (var i = 0; i < specifications.length; i++) {
-                var option = document.createElement("option");
-                option.value = specifications[i].value;
-                option.textContent = specifications[i].text;
-                specificationsDropdown.appendChild(option);
-              }
-            }
-          }
-        };
-        xhr.send();
-      }
-      document.getElementById("deviceTypeS").addEventListener("change", updateSpecifications);
-      window.onload = function () {
-        updateSpecifications();
-      }
-    });
-  </script>
-  @* for add to inventory dropdown *@
-  <script>
-    // Function to make an XHR request when the device type is selected
-    document.getElementById("deviceTypeA").addEventListener("change", function () {
-      var selectedDeviceId = this.value;
-      // Send the XHR request to the server endpoint
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
       xhr.onreadystatechange = function () {
@@ -671,7 +686,7 @@
           var specifications = JSON.parse(xhr.responseText);
           console.log(specifications);
           // Populate the Specifications dropdown dynamically
-          var specificationsDropdown = document.getElementById("specificationsA");
+          var specificationsDropdown = document.getElementById("specificationsS");
           specificationsDropdown.innerHTML = ""; // Clear existing options
           // Add the new options based on the fetched specifications
           if (specifications.length === 0) {
@@ -679,8 +694,7 @@
             option.value = "NA";
             option.textContent = "NA";
             specificationsDropdown.appendChild(option);
-          }
-          else {
+          } else {
             for (var i = 0; i < specifications.length; i++) {
               var option = document.createElement("option");
               option.value = specifications[i].value;
@@ -691,10 +705,73 @@
         }
       };
       xhr.send();
-    });
-  </script>
+    }
+
+    // Attach the event listener for the "change" event of the deviceTypeS element
+    document.getElementById("deviceTypeS").addEventListener("change", updateSpecifications);
+
+    // Call updateSpecifications() when the page initially loads
+    updateSpecifications();
+
+  });
+</script>
+
+  @* for add to inventory dropdown *@
+  <script>
+  // Function to make an XHR request when the device type is selected
+  function updateSpecificationsA() {
+    var selectedDeviceId = document.getElementById("deviceTypeA").value;
+    // Send the XHR request to the server endpoint
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/Home/GetSpecifications/" + selectedDeviceId, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        // Parse the JSON response
+        var specifications = JSON.parse(xhr.responseText);
+        console.log(specifications);
+        // Populate the Specifications dropdown dynamically
+        var specificationsDropdown = document.getElementById("specificationsA");
+        specificationsDropdown.innerHTML = ""; // Clear existing options
+        // Add the new options based on the fetched specifications
+        if (specifications.length === 0) {
+          var option = document.createElement("option");
+          option.value = "NA";
+          option.textContent = "NA";
+          specificationsDropdown.appendChild(option);
+        }
+        else {
+          for (var i = 0; i < specifications.length; i++) {
+            var option = document.createElement("option");
+            option.value = specifications[i].value;
+            option.textContent = specifications[i].text;
+            specificationsDropdown.appendChild(option);
+          }
+        }
+      }
+    };
+    xhr.send();
+  }
+
+  // Attach the event listener for the "change" event of the deviceTypeA element
+  document.getElementById("deviceTypeA").addEventListener("change", updateSpecificationsA);
+
+  // Call updateSpecificationsA() when the page initially loads
+  document.addEventListener("DOMContentLoaded", function () {
+    updateSpecificationsA();
+  });
+</script>
+
   @* //add user *@
   <script>
+        function closeModal() {
+    $('#myModal').modal('hide'); // Hide the modal with the specified ID
+}
+
+        function showModal(heading, text) {
+  document.getElementById("modalHeading").innerHTML = heading;
+            document.getElementById("modalBody").innerHTML = text;
+  $('#myModal').modal('show'); // Show the modal with the specified ID
+}
     document.getElementById('addUserForm').addEventListener('submit', function (event) {
       event.preventDefault();
       const form = event.target;
@@ -704,10 +781,10 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           if (xhr.status === 200) {
-            alert('User added successfully.');
+            showModal('Success','User added successfully.');
             // Handle success here
           } else {
-            alert(`Error: ${xhr.responseText}`);
+            showModal('Error',`Error: ${xhr.responseText}`);
             // Handle error here
           }
         }
@@ -733,12 +810,12 @@
           if (xhr.status === 200) {
             const response = xhr.responseText;
             if (response === "assigned") {
-              alert("Device successfully assigned!");
+              showModal("Success", "Device successfully assigned!");
             } else {
-              alert("All devices are already assigned.");
+              showModal("OOPS!","All devices are already assigned.");
             }
           } else {
-            alert("An error occurred while processing your request.");
+            showModal("OOPS!","An error occurred while processing your request.");
           }
         }
       };
@@ -773,16 +850,16 @@
         xhr.onload = function () {
           if (xhr.status >= 200 && xhr.status < 300) {
 
-            alert("Device added to inventory successfully.");
+            showModal("Success","Device added to inventory successfully.");
             form.reset(); // Clear the form inputs
           } else {
 
-            alert("Failed to add device to inventory.");
+            showModal("OOPS!","Failed to add device to inventory.");
           }
         };
 
         xhr.onerror = function () {
-          alert("An error occurred while making the request.");
+          showModal( "OOPS!", "An error occurred while making the request.");
         };
         console.log(data);
 
@@ -926,42 +1003,94 @@
     });
 
     function addDevice() {
-        var successMessage = "Device added successfully.";
-     alert(successMessage);
+      //xhr to add device from /Home/Admin/AddDevice
+      var deviceName = document.getElementById("deviceName").value;
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/Home/Admin/AddDevice", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      var jsonData = {};
+      jsonData["deviceName"] = deviceName;
+      console.log(jsonData);
+      console.log(JSON.stringify(jsonData));
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            @* const response = xhr.responseText; *@
+            const response = JSON.parse(xhr.responseText);
+            console.log(response.message);
+      if (response.message === "Device added successfully.") {
+    showModal("Success", "Device added successfully.");
+} else {
+    showModal("OOPS!", "Device already exists.");
+}
+
+
+          } else {
+            showModal("OOPS!","An error occurred while processing your request.");
+          }
+        }
+      };
+      xhr.send(JSON.stringify(jsonData));
+
     }
+
 </script>
 
+<script>
+ 
+  function submitForm() {
+    var ID= document.getElementById("DemployeeID").value;
+    //make a variable employee_id and parseInt the ID 
+    var employee_id = parseInt(ID);
+    console.log("x="+employee_id);
+    var inventory_id = document.getElementById("serialNumber").value;
+   var url = `/Home/Admin/DeleteDevice?employee_id=${employee_id}&inventory_id1=${inventory_id}`;
+   var xhr = new XMLHttpRequest();
+  xhr.open("DELETE", url, true);
+  xhr.onreadystatechange = function () {
+     if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          const response = xhr.responseText;
+          console.log(response);
+          if (response === "deleted") {
+            showModal("Success","Device deallocated successfully.");
+          } else {
+            showModal("OOPS!","Device not found.");
+          }
+} else {
+  showModal("OOPS!", "An error occurred while processing your request.");
+}
+
+      }
+  };
+  xhr.send();
+    @* var jsonData = {};
+    jsonData["employee_id"] = employee_id;
+    jsonData["inventory_id1"] = inventory_id;
+    console.log(jsonData);
+    console.log(JSON.stringify(jsonData)); *@
+  
+  }
+
+</script>
     <script>
-        function submitForm() {
 
-                var employeeIDField = document.getElementById("employeeID");
-    console.log("Employee ID Field Value: " + employeeIDField.value);
-
-    var employeeID = parseInt(employeeIDField.value);
-            var deviceType = parseInt(document.getElementById("deviceType").value);
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("DELETE", "/Home/Admin/DeallocateDevice", true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        alert("Device removed successfully!");
-                    } else {
-                        alert("Error: " + xhr.statusText);
-                    }
-                }
-            };
-
-            var data = JSON.stringify({
-                employee_id: employeeID,
-                device_id: deviceType
-            });
-            console.log(data);
-
-            xhr.send(data);
-        }
+      document.getElementById("LogOut").addEventListener("click", function () {
+        console.log("Logout");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/Home/Logout", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              @* window.location.href = "/"; *@
+              console.log("success");
+            } else {
+              console.error("Request failed with status:", xhr.status);
+            }
+          }
+        };
+        xhr.send();
+      });
     </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

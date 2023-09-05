@@ -31,6 +31,10 @@ public class HomeController : Controller
     {
         return View();
     }
+       public IActionResult ErrorPage()
+    {
+        return View();
+    }
     public IActionResult Privacy()
     {
         return View();
@@ -38,15 +42,33 @@ public class HomeController : Controller
     [HttpGet("/Home/Admin")]
     public IActionResult Admin()
     {
+        if (HttpContext.User.IsInRole("Admin")){
         List<DevicesModel> devices = GetDevicesFromBackend();
         return View(devices);
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
+
+
+    //perform authorization on basis of role generated in jwt token
+
     [HttpGet("/Home/User")]
-    public IActionResult User()
-    {
-        List<DevicesModel> devices = GetDevicesFromBackend();
-        return View(devices);
-    }
+public IActionResult User()
+{
+      if (HttpContext.User.IsInRole("User")){
+            List<DevicesModel> devices = GetDevicesFromBackend();
+            return View(devices);
+      }
+    
+        else
+        {
+            return View("ErrorPage");
+        }
+
+}
+
 
     private List<DevicesModel> GetDevicesFromBackend()
     {
@@ -72,7 +94,7 @@ public class HomeController : Controller
     }
 
 
-    [HttpGet("/Home/Index")]
+    [HttpPost("/Login")]
     public ActionResult<string> UserLogin(string userName, string Password)
     {
         if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(Password))
@@ -85,28 +107,32 @@ public class HomeController : Controller
         if (user != null && hashedPassword == user.password)
         {
             var token = GenerateJwtToken(user.username);
+            Console.WriteLine(token);
             Response.Cookies.Append("JwtToken", token);
             _httpContextAccessor.HttpContext.Session.SetString("Username", user.username);
+            _httpContextAccessor.HttpContext.Session.SetString("JwtToken", token);
             string x = _httpContextAccessor.HttpContext.Session.GetString("Username");
             Console.WriteLine(x);
             var emp = _context.employees.Find(user.employee_id);
-            Console.WriteLine(emp.IsAdmin);
+
             if (emp.IsAdmin == 1)
             {
-                return RedirectToAction("Admin");
+                return Ok("Admin");
             }
             else if (emp.IsAdmin == 0)
             {
-                return RedirectToAction("User");
+                
+                return Ok("User");
             }
         }
-        return View("Index");
+        return Ok("Invalid username or password.");
     }
 
 
     [HttpGet("Home/User/CheckAvailability")]
     public ActionResult<string> CheckAvailability(int deviceId, string specifications)
     {
+        if (HttpContext.User.IsInRole("User")){
         var user = _context.inventory.FirstOrDefault(u => u.device_id == deviceId && u.Specifications == specifications);
         if (user == null)
         {
@@ -114,13 +140,17 @@ public class HomeController : Controller
         }
 
         return "Available";
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
 
 
     [HttpGet("Home/User/GetUserDevices")]
     public ActionResult<IEnumerable<EmployeeDeviceData>> GetUserDevices()
     {
-
+        if (HttpContext.User.IsInRole("User")){
         string userName = _httpContextAccessor.HttpContext.Session.GetString("Username");
         var user = _context.UserInfo.FirstOrDefault(u => u.username == userName);
         int employee_id = user.employee_id;
@@ -142,20 +172,30 @@ public class HomeController : Controller
             {
                 employeeData.Add(new EmployeeDeviceData
                 {
+
+                    
                     EmployeeId = employee_id,
                     InventoryId = inventoryId,
                     DeviceName = _context.Device.Find(inventoryData.FirstOrDefault(u => u.inventory_id == inventoryId).device_id).device_name,
                 });
             }
         }
-        return employeeData;
+        return employeeData;}
+        else{
+            return View("ErrorPage");
+        }
     }
-
+public class DeviceRequestModel
+    {
+        public string deviceName { get; set; }
+    }
    
     [HttpPost("/Home/Admin/AddDevice")]
-    public IActionResult AddDevice(string deviceName)
+    public IActionResult AddDevice([FromBody]DeviceRequestModel request)
     {
-        if (string.IsNullOrEmpty(deviceName))
+        if (HttpContext.User.IsInRole("Admin")){
+            Console.WriteLine("x"+request.deviceName);
+        if (string.IsNullOrEmpty(request.deviceName))
         {
             return BadRequest("Device name is required.");
         }
@@ -163,20 +203,28 @@ public class HomeController : Controller
         Console.WriteLine("username" + userName);
         var device = new DevicesModel
         {
-            device_name = deviceName,
+            device_name = request.deviceName,
             created_by = userName,
             created_at_utc = DateTime.UtcNow,
             updated_at_utc = DateTime.UtcNow
         };
+        if (_context.Device.Any(d => d.device_name == device.device_name))
+        {
+            return Json(new { Message = "Device already exists." });
+        }
         _context.Device.Add(device);
         _context.SaveChanges();
 
         return Json(new { Message = "Device added successfully." });
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
     [HttpPost("/Home/Admin/AssignDevice")]
 
     public ActionResult<string> AssignDevice([FromBody] AssignDeviceData Data)
-    {
+    {   if (HttpContext.User.IsInRole("Admin")){
         try
         {
             int deviceId = int.Parse(Data.device_id);
@@ -219,7 +267,10 @@ public class HomeController : Controller
         {
             Console.WriteLine(ex.InnerException);
         }
-        return null;
+        return null;}
+        else{
+            return View("ErrorPage");
+        }
     }
     public class AssignDeviceData
     {
@@ -232,11 +283,23 @@ public class HomeController : Controller
     {
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("abjhbasjhbsjsjbjhabhshNidhi"));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var user=_context.UserInfo.FirstOrDefault(u=>u.username==username);
+        var emp=_context.employees.Find(user.employee_id);
+        string role;
+       
+        if(emp.IsAdmin==1){
+            role="Admin";
+        }
+        else{
+            role="User";
+        }
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Role, role),
 
         };
+       Console.WriteLine(role);
         var token = new JwtSecurityToken(
             issuer: "http://localhost:5099",
             audience: "http://localhost:5099",
@@ -261,6 +324,7 @@ public class HomeController : Controller
     [HttpPost("/Home/Admin/AddUser")]
     public async Task<IActionResult> AddUser(UserInfoModel UserInfo)
     {
+        if (HttpContext.User.IsInRole("Admin")){
         if (_context.UserInfo.Any(e => e.employee_id == UserInfo.employee_id))
         {
             return BadRequest(new { error = "User id already exists." });
@@ -275,27 +339,41 @@ public class HomeController : Controller
         _context.UserInfo.Add(user);
         await _context.SaveChangesAsync();
         return Ok("User added successfully");
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
     [HttpGet("/Home/Admin/GetUsername")]
     public ActionResult<UserData> GetUsername()
     {
+        if (HttpContext.User.IsInRole("Admin")){
         var userData = new UserData();
         string userName = _httpContextAccessor.HttpContext.Session.GetString("Username");
         var user = _context.UserInfo.FirstOrDefault(u => u.username == userName);
         userData.username = user.username;
         userData.employee_id = user.employee_id;
         return userData;
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
    
     [HttpGet("/Home/User/GetUserName")]
     public ActionResult<UserData> GetUserName()
     {
+        if (HttpContext.User.IsInRole("User")){
         var userData = new UserData();
         string userName = _httpContextAccessor.HttpContext.Session.GetString("Username");
         var user = _context.UserInfo.FirstOrDefault(u => u.username == userName);
         userData.username = user.username;
         userData.employee_id = user.employee_id;
         return userData;
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
     public class UserData
     {
@@ -306,7 +384,7 @@ public class HomeController : Controller
     [HttpPost("/Home/Admin/AddToInventory")]
     public IActionResult AddToInventory([FromBody] inventoryModel inventoryEntry)
     {
-
+        if (HttpContext.User.IsInRole("Admin")){
         var device = _context.Device.FirstOrDefault(d => d.device_id == inventoryEntry.device_id);
         if (device == null)
         {
@@ -323,6 +401,10 @@ public class HomeController : Controller
         _context.inventory.Add(inventoryEntry);
         _context.SaveChanges();
         return Ok();
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
 
     public class EmployeeDeviceData
@@ -346,6 +428,7 @@ public class HomeController : Controller
     [HttpGet("/Home/Admin/DisplayDevices/GetEmployeeDeviceData")]
     public ActionResult<IEnumerable<EmployeeDeviceData>> GetEmployeeDeviceData([FromQuery] int employee_id)
     {
+        if (HttpContext.User.IsInRole("Admin")){
         Console.WriteLine(employee_id);
         if (employee_id <= 0)
         {
@@ -370,6 +453,10 @@ public class HomeController : Controller
             }
         }
         return employeeData;
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
     public class inventoryData
     {
@@ -381,6 +468,7 @@ public class HomeController : Controller
 
     public ActionResult<IEnumerable<inventoryData>> GetInventoryTable(string deviceState, int device_id)
     {
+        if (HttpContext.User.IsInRole("Admin")){
         var filteredInventory = _context.inventory // Replace with your actual DbSet name
          .Where(inventory => inventory.device_state == deviceState && inventory.device_id == device_id)
          .ToList(); // Fetch data into memory
@@ -394,38 +482,92 @@ public class HomeController : Controller
         .ToList();
         Console.WriteLine(indexedInventory);
         return indexedInventory;
+        }
+        else{
+            return View("ErrorPage");
+        }
     }
 
-         [HttpDelete("/Home/Admin/DeallocateDevice")]
-    public IActionResult DeallocateDevice(int employeeId, int deviceId)
+
+
+    [HttpDelete("/Home/Admin/DeleteDevice")]
+    //delet device through inventory id and employee id
+    public IActionResult DeleteDevice(int employee_id, string inventory_id1)
     {
-        Console.WriteLine(deviceId);
-        var inventoryIds = _context.AssignedDevices
-            .Where(ad => ad.employee_id == employeeId)
-            .Select(ad => ad.inventory_id)
-            .ToList();
+        
 
-        foreach (var inventoryId in inventoryIds)
+        if (HttpContext.User.IsInRole("Admin")){
+            Console.WriteLine(employee_id);
+            Console.WriteLine("y"+inventory_id1);
+            Guid inventory_id = Guid.Parse(inventory_id1);
+            
+        var assignedDevice = _context.AssignedDevices.FirstOrDefault(device => device.employee_id == employee_id && device.inventory_id == inventory_id);
+        if (assignedDevice != null)
         {
-            var inventoryEntry = _context.inventory
-                .FirstOrDefault(inv => inv.inventory_id == inventoryId && inv.device_id == deviceId);
+            _context.AssignedDevices.Remove(assignedDevice);
+            _context.SaveChanges();
+            return Ok("deleted"); 
+        }
+        return Ok("Device not found.");}
+        else{
+            return View("ErrorPage");
+        }
+    }
+ 
+    [HttpGet("/Home/Logout")]
+    public IActionResult Logout()
+    {
+        // Response.Cookies.Delete("JwtToken");
+           foreach (var cookie in Request.Cookies.Keys)
+    {
+        Response.Cookies.Delete(cookie);
+    }
+        _httpContextAccessor.HttpContext.Session.Clear();
+        return RedirectToPage("/Index");
+    }
+    public class PieChartData{
+        public int DeviceId { get; set; }
+        public string DeviceName { get; set; }
+        public int AssignedDevices { get; set; }
+        public int UnassignedDevices { get; set; }
+        public int RepairDevices { get; set;}
+    }
+    
+    [HttpGet("Home/Admin/PopulatePieChart")]
+public ActionResult<IEnumerable<PieChartData>> PopulatePieChart(int deviceId)
+{
+    if (HttpContext.User.IsInRole("Admin"))
+    {
+        var pieChartData = new List<PieChartData>();
+        var deviceList = _context.Device.ToList();
+        
+        foreach (var device in deviceList)
+        {
+            var inventoryList = _context.inventory.Where(inventory => inventory.device_id == device.device_id).ToList();
+            var assignedDevices = inventoryList.Where(inventory => inventory.device_state == "Assigned").ToList();
+            var unassignedDevices = inventoryList.Where(inventory => inventory.device_state == "Not Assigned").ToList();
+            var repairDevices = inventoryList.Where(inventory => inventory.device_state == "Repair").ToList();
 
-            if (inventoryEntry != null)
+            if (device.device_id == deviceId)
             {
-                var assignedDeviceEntry = _context.AssignedDevices
-                    .FirstOrDefault(ad => ad.employee_id == employeeId && ad.inventory_id == inventoryId);
-
-                if (assignedDeviceEntry != null)
+                pieChartData.Add(new PieChartData
                 {
-                    _context.AssignedDevices.Remove(assignedDeviceEntry);
-                    _context.SaveChanges();
-                    return Ok("Device removed from assigned devices.");
-                }
+                    DeviceId = device.device_id,
+                    DeviceName = device.device_name,
+                    AssignedDevices = assignedDevices.Count,
+                    UnassignedDevices = unassignedDevices.Count,
+                    RepairDevices = repairDevices.Count
+                });
             }
         }
-
-        return NotFound("Device not found in assigned devices.");
+        return Json(pieChartData);
     }
+    else
+    {
+        return View("ErrorPage");
+    }
+}
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

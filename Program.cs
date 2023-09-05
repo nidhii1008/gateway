@@ -53,10 +53,28 @@ if (!app.Environment.IsDevelopment())
     app.UseStaticFiles();
 
     app.UseRouting();
-    app.UseAuthentication();
-    app.UseAuthorization();
+   
 
     app.UseSession();
+    app.Use(async (context, next) =>
+
+{
+
+    var jwtToken = context.Session.GetString("JwtToken");
+
+    if (!string.IsNullOrEmpty(jwtToken))
+
+    {
+
+        context.Request.Headers.Add("Authorization", "Bearer " + jwtToken);
+
+    }
+
+    await next();
+
+});
+ app.UseAuthentication();
+    app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",

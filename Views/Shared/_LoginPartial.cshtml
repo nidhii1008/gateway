@@ -6,11 +6,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>login page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet" />
 </head>
 <body style="overflow: hidden;">
+<div class="modal" id="myModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">OOPS!</h6>
+        <button type="button" class="btn-close" onclick=closeModal() aria-label="Close"></button>
+        
+      </div>
+      <div class="modal-body" > 
+        <p id="modalBody">Invalid Username or Password</p>
+      </div>
+      
+    </div>
+  </div>
+</div>
     <section class="background-radial-gradient overflow-hidden">
         <style>
             .background-radial-gradient {
@@ -67,7 +83,7 @@
                     <div id="radius-shape-2" class="position-absolute shadow-5-strong"></div>
                     <div class="card bg-glass">
                         <div class="card-body px-4 py-5 px-md-5">
-                            <form id="loginForm" action="Home/Index" method="get">
+                            <form id="loginForm"  method="post">
                                 <div class="form-check d-flex justify-content-center mb-4" style="margin-top: -1rem">
                                     <img src="~/Images/logo.png" alt="logo" style="height: 10rem; width: 10rem" />
                                 </div>
@@ -84,6 +100,8 @@
                                     Log in
                                 </button>
                             </form>
+
+
                         </div>
                     </div>
                 </div>
@@ -92,9 +110,13 @@
     </section>
 </body>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 
-<script>
-    function validatePassword() {
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
+
+@* <script> *@
+    @* function validatePassword() {
         const passwordInput = document.getElementById("Password");
         const password = passwordInput.value;
         var alertMessage = "@Html.Raw("Password should be 8 characters long and contain at least one uppercase letter,\\u000Aone lowercase letter, one digit, and one special character (\\u0040, \\u0024, \\u0021, \\u0025, \\u002A, \\u003F, \\u0026).\\u000AExample: Abcd@1234")";
@@ -119,5 +141,60 @@
     }
     const form = document.querySelector("form");
     form.addEventListener("submit", onSubmitForm);
+    
+</script> *@
+
+    <script>
+    function closeModal() {
+    $('#myModal').modal('hide'); // Hide the modal with the specified ID
+}
+
+        function showModal(text) {
+            document.getElementById("modalBody").innerHTML = text;
+  $('#myModal').modal('show'); // Show the modal with the specified ID
+}
+ 
+  function submitLoginForm(event) {
+    event.preventDefault(); 
+
+  
+    var userName = document.getElementById("userName").value;
+    var password = document.getElementById("Password").value;
+
+  
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/Login", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+         
+          var response = xhr.responseText;
+          console.log(response);
+          if (response === "Admin") {
+            
+            window.location.href = "/Home/Admin"; 
+          } else if (response === "User") {
+            
+            window.location.href = "/Home/User"; 
+          } else {
+           
+            showModal("Invalid Username or Password");
+          }
+        } else {
+         
+          console.error('Login request failed with status:', xhr.status);
+        }
+      }
+    };
+
+    var formData = "userName=" + encodeURIComponent(userName) + "&Password=" + encodeURIComponent(password);
+    xhr.send(formData);
+  }
+
+   document.getElementById("loginForm").addEventListener("submit", submitLoginForm);
 </script>
+
 </html>
